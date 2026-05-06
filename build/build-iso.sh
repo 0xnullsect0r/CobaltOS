@@ -79,6 +79,7 @@ lb config \
     --mirror-chroot-security "http://deb.debian.org/debian-security/" \
     --mirror-binary "http://deb.debian.org/debian/" \
     --mirror-binary-security "http://deb.debian.org/debian-security/" \
+    --keyring-packages "debian-archive-keyring" \
     --bootloader grub-efi \
     --binary-images iso-hybrid \
     --iso-volume "CobaltOS ${VERSION}" \
