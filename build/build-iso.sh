@@ -110,7 +110,7 @@ EOF
 
 # Pin trixie packages to low priority by default;
 # only pull explicitly listed packages (keyd) from trixie.
-# Also block sysvinit-core from being installed (conflicts with systemd-sysv).
+# Block sysvinit packages so live-config uses live-config-systemd instead.
 cat > config/archives/pinning.pref.chroot <<'EOF'
 Package: *
 Pin: release n=trixie
@@ -121,6 +121,10 @@ Pin: release n=trixie
 Pin-Priority: 900
 
 Package: sysvinit-core
+Pin: release *
+Pin-Priority: -1
+
+Package: live-config-sysvinit
 Pin: release *
 Pin-Priority: -1
 EOF
