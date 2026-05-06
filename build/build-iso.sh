@@ -110,7 +110,7 @@ EOF
 
 # Pin trixie packages to low priority by default;
 # only pull explicitly listed packages (keyd) from trixie.
-# Block sysvinit packages so live-config uses live-config-systemd instead.
+# Block sysvinit-core: conflicts with systemd-sysv (pulled in by systemd pkg).
 cat > config/archives/pinning.pref.chroot <<'EOF'
 Package: *
 Pin: release n=trixie
@@ -121,10 +121,6 @@ Pin: release n=trixie
 Pin-Priority: 900
 
 Package: sysvinit-core
-Pin: release *
-Pin-Priority: -1
-
-Package: live-config-sysvinit
 Pin: release *
 Pin-Priority: -1
 EOF
@@ -192,10 +188,9 @@ mkdir -p "$SCRIPTS_DST"
 cp "$REPO_ROOT/build/scripts/"* "$SCRIPTS_DST/" 2>/dev/null || true
 chmod +x "$SCRIPTS_DST"/cobalt-* 2>/dev/null || true
 
-# --- Patch live-build to skip Contents-amd64.gz download ---
-# Contents-amd64.gz no longer exists at the Debian mirror distribution root
-# (it's per-component in modern mirrors). Patching lb_chroot_linux-image to
-# exit immediately; linux-image-amd64 is in the package list instead.
+# --- Patch live-build scripts for bookworm compatibility ---
+# 1. lb_chroot_linux-image: Contents-amd64.gz no longer exists at mirror root;
+#    linux-image-amd64 is in the package list instead.
 LB_LINUX_IMAGE_SCRIPT="/usr/lib/live/build/lb_chroot_linux-image"
 if [[ -f "$LB_LINUX_IMAGE_SCRIPT" ]]; then
     cat > "$LB_LINUX_IMAGE_SCRIPT" <<'EOF'
@@ -205,6 +200,15 @@ exit 0
 EOF
     chmod +x "$LB_LINUX_IMAGE_SCRIPT"
     info "Patched lb_chroot_linux-image to skip Contents file download"
+fi
+
+# 2. lb_chroot_live-packages: Ubuntu's live-build explicitly installs
+#    live-config-sysvinit which doesn't exist in bookworm (replaced by
+#    open-infrastructure-system-config). Patch to use live-config-systemd.
+LB_LIVE_PKGS_SCRIPT="/usr/lib/live/build/lb_chroot_live-packages"
+if [[ -f "$LB_LIVE_PKGS_SCRIPT" ]]; then
+    sed -i 's/live-config-sysvinit/live-config-systemd/g' "$LB_LIVE_PKGS_SCRIPT"
+    info "Patched lb_chroot_live-packages: live-config-sysvinit -> live-config-systemd"
 fi
 
 # --- Build ---
