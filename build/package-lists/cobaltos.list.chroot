@@ -13,6 +13,7 @@ ca-certificates
 gnupg
 curl
 wget
+sudo
 
 # Kernel and firmware
 linux-image-amd64
@@ -21,6 +22,7 @@ firmware-linux
 firmware-linux-nonfree
 firmware-iwlwifi
 firmware-atheros
+firmware-realtek
 firmware-misc-nonfree
 sof-firmware
 
@@ -39,6 +41,8 @@ wpasupplicant
 wireless-tools
 iw
 rfkill
+bluez
+bluez-tools
 
 # Audio
 pipewire
@@ -47,14 +51,20 @@ pipewire-alsa
 wireplumber
 alsa-utils
 alsa-ucm-conf
+playerctl
 
 # Input
 keyd
 libinput-tools
-xinput
 
-# Bootloader
-grub-efi-amd64
+# Power management
+power-profiles-daemon
+powertop
+
+# Brightness / backlight
+brightnessctl
+
+# Bootloader and boot splash
 efibootmgr
 plymouth
 plymouth-themes
@@ -86,9 +96,22 @@ sd
 hexyl
 gping
 
+# COSMIC Desktop
+cosmic-session
+cosmic-comp
+cosmic-panel
+cosmic-launcher
+cosmic-settings
+cosmic-files
+cosmic-term
+cosmic-edit
+cosmic-greeter
+
 # Fonts
 fonts-inter
 fonts-jetbrains-mono
+fonts-noto
+fonts-noto-color-emoji
 
 # Basic utilities
 git
@@ -97,7 +120,6 @@ nano
 htop
 psmisc
 lsof
-strace
 file
 tree
 zip
@@ -105,3 +127,5 @@ unzip
 rsync
 openssh-client
 man-db
+debootstrap
+sgdisk

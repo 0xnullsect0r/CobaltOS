@@ -143,6 +143,7 @@ impl Application for InstallerApp {
                             username: self.username.clone(),
                             hostname: self.hostname.clone(),
                             use_full_disk: true,
+                            password: self.password.clone(),
                         };
 
                         self.step = InstallStep::Installing;

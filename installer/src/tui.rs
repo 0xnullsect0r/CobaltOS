@@ -245,6 +245,7 @@ async fn handle_key(state: &mut TuiState, key: KeyCode) {
                     username: state.username.clone(),
                     hostname: state.hostname.clone(),
                     use_full_disk: true,
+                    password: state.password.clone(),
                 };
                 state.step = InstallStep::Installing;
                 state.progress = 0;

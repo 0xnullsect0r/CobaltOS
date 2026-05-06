@@ -133,6 +133,7 @@ pub struct InstallConfig {
     pub keyboard_layout: String,
     pub disk: String,
     pub username: String,
+    pub password: String,
     pub hostname: String,
     pub use_full_disk: bool,
 }
@@ -188,14 +189,19 @@ pub async fn run_install(
             keyboard: config.keyboard_layout.clone(),
             hostname: config.hostname.clone(),
             username: config.username.clone(),
-            password: String::new(), // set separately
+            password: config.password.clone(),
         };
         crate::config::apply(&sys_cfg, INSTALL_ROOT).await
     });
 
-    // 8 — User password
-    step!(84, "Creating user account", {
-        set_user_password(&config.username, INSTALL_ROOT)
+    // 8 — User password (already set via config::apply → create_user → chpasswd)
+    // If password was empty, set a temporary one equal to username
+    step!(84, "Finalising user account", {
+        if config.password.is_empty() {
+            set_user_password(&config.username, &config.username, INSTALL_ROOT)
+        } else {
+            Ok(())
+        }
     });
 
     // 9 — Enable services
@@ -328,10 +334,8 @@ fn install_systemd_boot(disk: &str, root: &str) -> Result<()> {
     Ok(())
 }
 
-fn set_user_password(username: &str, root: &str) -> Result<()> {
-    // Prompt is handled by the GUI/TUI. Here we set a temporary password
-    // equal to the username; the user changes it on first login via OOBE.
-    let chpasswd_input = format!("{username}:{username}");
+fn set_user_password(username: &str, password: &str, root: &str) -> Result<()> {
+    let chpasswd_input = format!("{username}:{password}");
     let mut child = Command::new("chroot")
         .args([root, "chpasswd"])
         .stdin(std::process::Stdio::piped())
