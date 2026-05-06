@@ -156,6 +156,21 @@ mkdir -p "$SCRIPTS_DST"
 cp "$REPO_ROOT/build/scripts/"* "$SCRIPTS_DST/" 2>/dev/null || true
 chmod +x "$SCRIPTS_DST"/cobalt-* 2>/dev/null || true
 
+# --- Patch live-build to skip Contents-amd64.gz download ---
+# Contents-amd64.gz no longer exists at the Debian mirror distribution root
+# (it's per-component in modern mirrors). Patching lb_chroot_linux-image to
+# exit immediately; linux-image-amd64 is in the package list instead.
+LB_LINUX_IMAGE_SCRIPT="/usr/lib/live/build/lb_chroot_linux-image"
+if [[ -f "$LB_LINUX_IMAGE_SCRIPT" ]]; then
+    cat > "$LB_LINUX_IMAGE_SCRIPT" <<'EOF'
+#!/bin/sh
+echo "P: Skipping lb_chroot_linux-image (kernel installed via package list)"
+exit 0
+EOF
+    chmod +x "$LB_LINUX_IMAGE_SCRIPT"
+    info "Patched lb_chroot_linux-image to skip Contents file download"
+fi
+
 # --- Build ---
 info "Running lb build (this takes 15–30 minutes)..."
 lb build 2>&1 | tee "$OUTPUT_DIR/build.log"
