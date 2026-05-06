@@ -96,36 +96,29 @@ jobs:
         id: notes
         run: |
           VER="${{ steps.version.outputs.ver }}"
-          {
-            echo "notes<<RELEASE_NOTES_EOF"
-            python3 -c "
-import re
-tag  = '${VER}'
-text = open('README.md').read()
-row  = re.search(r'\|\s*\*?\*?v' + re.escape(tag) + r'\*?\*?\s*\|([^\n]+)', text)
-desc = row.group(1).strip() if row else 'See README.md for details.'
-print(f'## CobaltOS v{tag}')
-print()
-print(desc)
-print()
-print('### Assets')
-print('| File | Description |')
-print('|------|-------------|')
-print(f'| \`cobaltos-{tag}-amd64.iso\` | Bootable hybrid ISO (amd64) |')
-print(f'| \`cobaltos-{tag}-amd64.iso.sha256\` | SHA-256 checksum |')
-print()
-print('### Verify checksum')
-print('\`\`\`bash')
-print(f'sha256sum -c cobaltos-{tag}-amd64.iso.sha256')
-print('\`\`\`')
-print()
-print('### Flash to USB')
-print('\`\`\`bash')
-print(f'sudo dd if=cobaltos-{tag}-amd64.iso of=/dev/sdX bs=4M status=progress conv=fdatasync')
-print('\`\`\`')
-"
-            echo "RELEASE_NOTES_EOF"
-          } >> "$GITHUB_OUTPUT"
+          NOTES="$(mktemp)"
+          cat > "$NOTES" <<NOTES_EOF
+          ## CobaltOS v${VER}
+
+          ### Assets
+          | File | Description |
+          |------|-------------|
+          | \`cobaltos-${VER}-amd64.iso\` | Bootable hybrid ISO (amd64) |
+          | \`cobaltos-${VER}-amd64.iso.sha256\` | SHA-256 checksum |
+
+          ### Verify checksum
+          \`\`\`bash
+          sha256sum -c cobaltos-${VER}-amd64.iso.sha256
+          \`\`\`
+
+          ### Flash to USB
+          \`\`\`bash
+          sudo dd if=cobaltos-${VER}-amd64.iso of=/dev/sdX bs=4M status=progress conv=fdatasync
+          \`\`\`
+          NOTES_EOF
+          # Dedent (strip leading spaces added by the heredoc indentation)
+          sed -i 's/^          //' "$NOTES"
+          echo "path=${NOTES}" >> "$GITHUB_OUTPUT"
 
       # ── Create GitHub Release ───────────────────────────────────────────────
       - name: Create release
@@ -133,7 +126,7 @@ print('\`\`\`')
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: "CobaltOS ${{ steps.version.outputs.tag }}"
-          body: ${{ steps.notes.outputs.notes }}
+          body_path: ${{ steps.notes.outputs.path }}
           draft: false
           prerelease: ${{ contains(steps.version.outputs.tag, '-') }}
           files: |
