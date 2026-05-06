@@ -80,6 +80,7 @@ lb config \
     --mirror-chroot-security "http://deb.debian.org/debian-security" \
     --mirror-binary "http://deb.debian.org/debian" \
     --mirror-binary-security "http://deb.debian.org/debian-security" \
+    --security false \
     --keyring-packages "debian-archive-keyring" \
     --bootloader grub-efi \
     --binary-images iso-hybrid \
@@ -95,8 +96,13 @@ lb config \
     --apt-recommends false
 
 # --- Extra APT sources ---
+# bookworm-security: correct suite name (live-build generates old-style bookworm/updates)
 # trixie: keyd (not in bookworm)
 mkdir -p config/archives
+
+cat > config/archives/bookworm-security.list.chroot <<'EOF'
+deb http://deb.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
+EOF
 
 cat > config/archives/trixie.list.chroot <<'EOF'
 deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
