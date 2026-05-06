@@ -1,0 +1,17 @@
+[Unit]
+Description=CobaltOS Welcome App (first login)
+Documentation=https://github.com/0xnullsect0r/CobaltOS
+ConditionPathExists=!/var/lib/cobalt/welcome-done
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/cobalt-welcome
+ExecStopPost=/bin/sh -c 'mkdir -p /var/lib/cobalt && touch /var/lib/cobalt/welcome-done'
+Restart=no
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical-session.target

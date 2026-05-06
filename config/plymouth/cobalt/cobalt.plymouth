@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=CobaltOS
+Description=CobaltOS boot splash — cobalt blue minimal
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/cobalt
+ScriptFile=/usr/share/plymouth/themes/cobalt/cobalt.script

@@ -26,8 +26,8 @@ die()     { echo -e "${RED}[ERROR]${NC} $*" >&2; exit 1; }
 [[ $EUID -eq 0 ]] || die "This script must be run as root: sudo $0"
 
 # --- Dependency check ---
-for cmd in lb debootstrap xorriso mtools; do
-    command -v "$cmd" &>/dev/null || die "Missing dependency: $cmd (apt install live-build xorriso mtools)"
+for cmd in lb debootstrap xorriso mtools cargo; do
+    command -v "$cmd" &>/dev/null || die "Missing dependency: $cmd"
 done
 
 # --- Clean build ---
@@ -41,6 +41,25 @@ cd "$BUILD_DIR"
 
 info "Building CobaltOS v${VERSION} ISO..."
 info "Output: ${OUTPUT_DIR}/${ISO_NAME}"
+
+# --- Build Rust binaries ---
+BINARIES_DIR="$BUILD_DIR/config/includes.chroot/usr/local/bin"
+mkdir -p "$BINARIES_DIR"
+
+info "Building cobalt-* Rust binaries (release)..."
+pushd "$REPO_ROOT" > /dev/null
+cargo build --release --workspace 2>&1 | tee -a "$OUTPUT_DIR/build.log"
+popd > /dev/null
+
+for bin in cobalt-installer cobalt-welcome cobalt-oobe cobalt-update cobalt-hardware-probe; do
+    src="$REPO_ROOT/target/release/$bin"
+    if [[ -f "$src" ]]; then
+        cp "$src" "$BINARIES_DIR/$bin"
+        success "Copied $bin"
+    else
+        warn "Binary not found: $src (skipping)"
+    fi
+done
 
 # --- Configure live-build ---
 lb config \
@@ -69,6 +88,25 @@ cp "$SCRIPT_DIR/hooks/"*.chroot config/hooks/normal/ 2>/dev/null || true
 # Copy config files into chroot
 mkdir -p config/includes.chroot/etc/cobaltos
 cp -r "$REPO_ROOT/config/." config/includes.chroot/etc/cobaltos/
+
+# Install Plymouth theme
+PLYMOUTH_DST="config/includes.chroot/usr/share/plymouth/themes/cobalt"
+mkdir -p "$PLYMOUTH_DST"
+cp "$REPO_ROOT/config/plymouth/cobalt/cobalt.plymouth" "$PLYMOUTH_DST/"
+cp "$REPO_ROOT/config/plymouth/cobalt/cobalt.script"   "$PLYMOUTH_DST/"
+
+# Install systemd service units
+SYSTEMD_DST="config/includes.chroot/usr/lib/systemd/system"
+mkdir -p "$SYSTEMD_DST"
+cp "$REPO_ROOT/config/systemd/"*.service "$SYSTEMD_DST/"
+
+# Enable services via preset
+PRESET_DST="config/includes.chroot/usr/lib/systemd/system-preset"
+mkdir -p "$PRESET_DST"
+cat > "$PRESET_DST/80-cobaltos.preset" <<'EOF'
+enable cobalt-hardware-probe.service
+enable cobalt-update.service
+EOF
 
 # --- Build ---
 info "Running lb build (this takes 15–30 minutes)..."

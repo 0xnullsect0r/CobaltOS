@@ -1,0 +1,19 @@
+[Unit]
+Description=CobaltOS Hardware Probe (first-boot configuration)
+Documentation=https://github.com/0xnullsect0r/CobaltOS
+# Run once on first boot; marks itself done so it never runs again
+ConditionPathExists=!/var/lib/cobalt/hardware-probe-done
+After=local-fs.target systemd-udev-settle.service
+Before=display-manager.service keyd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/cobalt-hardware-probe
+ExecStartPost=/bin/sh -c 'mkdir -p /var/lib/cobalt && touch /var/lib/cobalt/hardware-probe-done'
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cobalt-hardware-probe
+
+[Install]
+WantedBy=multi-user.target

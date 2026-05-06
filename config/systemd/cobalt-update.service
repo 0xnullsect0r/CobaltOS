@@ -1,0 +1,19 @@
+[Unit]
+Description=CobaltOS Update Manager
+Documentation=https://github.com/0xnullsect0r/CobaltOS
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/cobalt-update daemon
+Restart=on-failure
+RestartSec=30s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cobalt-update
+# Run as root so apt and flatpak can install updates
+User=root
+
+[Install]
+WantedBy=multi-user.target

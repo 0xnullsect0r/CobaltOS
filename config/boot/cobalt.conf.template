@@ -1,0 +1,4 @@
+title   CobaltOS
+linux   /vmlinuz
+initrd  /initrd.img
+options root=PARTUUID=%%PARTUUID%% rw quiet splash loglevel=3 rd.systemd.show_status=false
