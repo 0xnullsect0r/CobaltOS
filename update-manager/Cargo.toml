@@ -1,0 +1,22 @@
+[package]
+name = "cobalt-update"
+description = "CobaltOS update manager — wraps apt and flatpak with GUI tray notifications"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "cobalt-update"
+path = "src/main.rs"
+
+[dependencies]
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+zbus.workspace = true

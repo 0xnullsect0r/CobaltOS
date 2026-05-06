@@ -1,0 +1,33 @@
+#!/bin/sh
+# CobaltOS chroot hook: post-install configuration
+# Runs inside the chroot during the live-build process.
+
+set -e
+
+# Set default shell to zsh for new users
+chsh -s /bin/zsh root 2>/dev/null || true
+
+# Install default zshrc and starship config
+mkdir -p /etc/skel
+cp /etc/cobaltos/zsh/.zshrc /etc/skel/.zshrc 2>/dev/null || true
+mkdir -p /etc/skel/.config
+cp /etc/cobaltos/zsh/starship.toml /etc/skel/.config/starship.toml 2>/dev/null || true
+
+# Enable Flathub remote for all users
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+
+# Enable key systemd services
+systemctl enable NetworkManager 2>/dev/null || true
+systemctl enable bluetooth 2>/dev/null || true
+systemctl enable pipewire 2>/dev/null || true
+systemctl enable pipewire-pulse 2>/dev/null || true
+
+# Install starship prompt if not in package list
+if ! command -v starship >/dev/null 2>&1; then
+    curl -sS https://starship.rs/install.sh | sh -s -- --yes 2>/dev/null || true
+fi
+
+# Set hostname
+echo "cobaltos" > /etc/hostname
+
+echo "CobaltOS chroot hook complete"

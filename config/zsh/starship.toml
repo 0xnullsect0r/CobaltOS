@@ -1,0 +1,55 @@
+# Starship prompt configuration for CobaltOS
+# https://starship.rs/config/
+
+format = """
+[░▒▓](fg:#0047AB)\
+[ 🪨 $os](bg:#0047AB fg:#ffffff)\
+[█](fg:#0047AB bg:#1a1e28)\
+[ $directory](bg:#1a1e28 fg:#9aa0b5)\
+[█](fg:#1a1e28 bg:#111318)\
+$git_branch$git_status\
+$rust$python$nodejs$golang\
+$cmd_duration\
+$line_break\
+[▓▒░](fg:#0047AB)[ ](fg:#ffffff)\
+"""
+
+# Disable default newline — our format handles it
+add_newline = false
+
+[os]
+disabled = false
+format = "[$symbol]($style)"
+style = "bg:#0047AB fg:#ffffff"
+
+[os.symbols]
+Linux = "🐧"
+
+[directory]
+style = "bg:#1a1e28 fg:#e8eaf6"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[git_branch]
+symbol = " "
+style = "fg:#0047AB"
+format = "[ $symbol$branch ]($style)"
+
+[git_status]
+style = "fg:#f59e0b"
+format = "[$all_status$ahead_behind ]($style)"
+
+[rust]
+symbol = "🦀 "
+style = "fg:#ef4444"
+format = "[ $symbol$version ]($style)"
+
+[cmd_duration]
+min_time = 2_000
+style = "fg:#6b7280"
+format = "[ ⏱ $duration ]($style)"
+
+[character]
+success_symbol = "[❯](bold fg:#22c55e)"
+error_symbol   = "[❯](bold fg:#ef4444)"

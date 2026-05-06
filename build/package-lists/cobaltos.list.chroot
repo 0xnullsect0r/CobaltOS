@@ -1,0 +1,107 @@
+# CobaltOS base package list
+# Installed into the live image and the installed system.
+
+# Base system essentials
+systemd
+systemd-boot
+systemd-sysv
+udev
+dbus
+apt
+apt-transport-https
+ca-certificates
+gnupg
+curl
+wget
+
+# Kernel and firmware
+linux-image-amd64
+linux-headers-amd64
+firmware-linux
+firmware-linux-nonfree
+firmware-iwlwifi
+firmware-atheros
+firmware-misc-nonfree
+sof-firmware
+
+# Filesystem tools
+e2fsprogs
+dosfstools
+btrfs-progs
+parted
+gdisk
+ntfs-3g
+
+# Network
+network-manager
+network-manager-gnome
+wpasupplicant
+wireless-tools
+iw
+rfkill
+
+# Audio
+pipewire
+pipewire-pulse
+pipewire-alsa
+wireplumber
+alsa-utils
+alsa-ucm-conf
+
+# Input
+keyd
+libinput-tools
+xinput
+
+# Bootloader
+grub-efi-amd64
+efibootmgr
+plymouth
+plymouth-themes
+
+# Zram swap
+systemd-zram-generator
+
+# Flatpak
+flatpak
+gnome-software
+gnome-software-plugin-flatpak
+
+# Browser
+firefox-esr
+
+# Shell and Rust CLI tools
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+ripgrep
+fd-find
+eza
+bat
+zoxide
+dust
+bottom
+procs
+sd
+hexyl
+gping
+
+# Fonts
+fonts-inter
+fonts-jetbrains-mono
+
+# Basic utilities
+git
+vim
+nano
+htop
+psmisc
+lsof
+strace
+file
+tree
+zip
+unzip
+rsync
+openssh-client
+man-db
