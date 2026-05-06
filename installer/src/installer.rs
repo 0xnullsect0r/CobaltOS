@@ -3,8 +3,9 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 pub enum InstallStep {
+    #[default]
     Welcome,
     DeviceCheck,
     DiskSetup,

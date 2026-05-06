@@ -1,3 +1,7 @@
-pub mod appearance {}
-pub mod software {}
-pub mod finish {}
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WelcomePage {
+    Welcome,
+    Appearance,
+    Apps,
+    Finish,
+}

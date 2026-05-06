@@ -1,4 +1,5 @@
 mod app;
+#[path = "pages/mod.rs"]
 mod pages;
 mod theme;
 
