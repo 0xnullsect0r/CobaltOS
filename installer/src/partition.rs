@@ -6,10 +6,13 @@ use anyhow::{bail, Context, Result};
 use std::process::Command;
 use tracing::info;
 
+use crate::installer::Filesystem;
+
 /// Wipe, partition, and format `disk` for a CobaltOS installation.
 /// Requires root. `disk` is a block device path like `/dev/sda` or `/dev/mmcblk0`.
-pub async fn partition_disk(disk: &str) -> Result<()> {
-    info!("Partitioning disk: {disk}");
+/// The root partition is formatted as `filesystem` (ext4 or btrfs with zstd).
+pub async fn partition_disk(disk: &str, filesystem: &Filesystem) -> Result<()> {
+    info!("Partitioning disk: {disk} (filesystem: {filesystem:?})");
 
     if !std::path::Path::new(disk).exists() {
         bail!("Disk {disk} not found");
@@ -26,7 +29,22 @@ pub async fn partition_disk(disk: &str) -> Result<()> {
     let root = format!("{disk}{suffix}2");
 
     run_cmd("mkfs.fat", &["-F32", "-n", "EFI", &esp])?;
-    run_cmd("mkfs.ext4", &["-L", "CobaltOS", "-F", &root])?;
+
+    match filesystem {
+        Filesystem::Ext4 => {
+            run_cmd("mkfs.ext4", &["-L", "CobaltOS", "-F", &root])?;
+        }
+        Filesystem::Btrfs => {
+            run_cmd("mkfs.btrfs", &["-L", "CobaltOS", "-f", &root])?;
+            // Mount temporarily to create subvolumes
+            run_cmd("mount", &[&root, "/mnt"])?;
+            run_cmd("btrfs", &["subvolume", "create", "/mnt/@"])?;
+            run_cmd("btrfs", &["subvolume", "create", "/mnt/@home"])?;
+            run_cmd("btrfs", &["subvolume", "create", "/mnt/@snapshots"])?;
+            run_cmd("umount", &["/mnt"])?;
+            info!("btrfs subvolumes created: @, @home, @snapshots");
+        }
+    }
 
     info!("Partitioning complete: ESP={esp}, root={root}");
     Ok(())
@@ -39,7 +57,23 @@ pub fn mount_partitions(disk: &str, mountpoint: &str) -> Result<()> {
     let root = format!("{disk}{suffix}2");
 
     std::fs::create_dir_all(mountpoint)?;
-    run_cmd("mount", &[&root, mountpoint])?;
+
+    // Detect whether the root partition is btrfs and use subvolumes if so
+    let fstype = detect_fstype(&root).unwrap_or_default();
+    if fstype == "btrfs" {
+        run_cmd(
+            "mount",
+            &["-o", "subvol=@,compress=zstd:3,noatime", &root, mountpoint],
+        )?;
+        let home_dir = format!("{mountpoint}/home");
+        std::fs::create_dir_all(&home_dir)?;
+        run_cmd(
+            "mount",
+            &["-o", "subvol=@home,compress=zstd:3,noatime", &root, &home_dir],
+        )?;
+    } else {
+        run_cmd("mount", &[&root, mountpoint])?;
+    }
 
     let esp_dir = format!("{mountpoint}/boot/efi");
     std::fs::create_dir_all(&esp_dir)?;
@@ -52,6 +86,14 @@ pub fn mount_partitions(disk: &str, mountpoint: &str) -> Result<()> {
 pub fn unmount_partitions(mountpoint: &str) -> Result<()> {
     run_cmd("umount", &["-R", mountpoint])?;
     Ok(())
+}
+
+fn detect_fstype(dev: &str) -> Option<String> {
+    let out = Command::new("blkid")
+        .args(["-s", "TYPE", "-o", "value", dev])
+        .output()
+        .ok()?;
+    Some(String::from_utf8_lossy(&out.stdout).trim().to_string())
 }
 
 fn run_cmd(program: &str, args: &[&str]) -> Result<()> {

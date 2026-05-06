@@ -4,6 +4,7 @@ mod audio;
 mod display;
 mod power;
 mod service;
+mod touchpad;
 
 use anyhow::Result;
 use tracing::info;
@@ -22,6 +23,10 @@ async fn main() -> Result<()> {
         return audio::fix_audio().await;
     }
 
+    if args.contains(&"--fix-touchpad".to_string()) {
+        return touchpad::fix_touchpad().await;
+    }
+
     if args.contains(&"--dbus".to_string()) {
         // Run as long-lived D-Bus service (for cobalt-welcome/installer to query)
         return service::run_service().await;
@@ -35,6 +40,7 @@ async fn main() -> Result<()> {
     audio::apply_ucm_profile(&board).await?;
     display::apply_scaling(&board).await?;
     power::apply_power_profile(&board).await?;
+    touchpad::apply_touchpad_config(&board).await?;
 
     info!("Hardware probe complete for board: {}", board.name);
     Ok(())

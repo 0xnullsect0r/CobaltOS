@@ -11,7 +11,7 @@ use iced::{
 };
 
 use crate::hardware::HardwareInfo;
-use crate::installer::{run_install, InstallConfig, InstallStep};
+use crate::installer::{run_install, Filesystem, InstallConfig, InstallStep};
 
 pub fn run() -> anyhow::Result<()> {
     InstallerApp::run(Settings {
@@ -36,6 +36,7 @@ struct InstallerApp {
 
     // DiskSetup
     disk_idx: Option<usize>,
+    filesystem: Filesystem,
 
     // Location
     locale: String,
@@ -59,6 +60,7 @@ enum Message {
     Back,
     HardwareProbed(Result<HardwareInfo, String>),
     DiskSelected(usize),
+    FilesystemChanged(Filesystem),
     LocaleChanged(String),
     TimezoneChanged(String),
     UsernameChanged(String),
@@ -144,6 +146,7 @@ impl Application for InstallerApp {
                             hostname: self.hostname.clone(),
                             use_full_disk: true,
                             password: self.password.clone(),
+                            filesystem: self.filesystem.clone(),
                         };
 
                         self.step = InstallStep::Installing;
@@ -177,6 +180,7 @@ impl Application for InstallerApp {
                 self.disk_idx = Some(idx);
                 Command::none()
             }
+            Message::FilesystemChanged(fs) => { self.filesystem = fs; Command::none() }
             Message::LocaleChanged(v) => { self.locale = v; Command::none() }
             Message::TimezoneChanged(v) => { self.timezone = v; Command::none() }
             Message::UsernameChanged(v) => { self.username = v; Command::none() }
@@ -472,6 +476,14 @@ impl InstallerApp {
                 .style(iced::theme::Text::Color(Color::from_rgb(0.9, 0.55, 0.1))),
             Space::with_height(24),
             disk_col,
+            Space::with_height(24),
+            text("Filesystem").size(16),
+            Space::with_height(8),
+            radio("ext4  (recommended — fast, reliable)", Filesystem::Ext4, Some(self.filesystem.clone()), Message::FilesystemChanged)
+                .size(16),
+            Space::with_height(8),
+            radio("btrfs  (snapshots + zstd compression)", Filesystem::Btrfs, Some(self.filesystem.clone()), Message::FilesystemChanged)
+                .size(16),
             Space::with_height(16),
             self.error_text(),
             Space::with_height(32),

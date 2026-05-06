@@ -115,6 +115,13 @@ if [ -d "$REPO_ROOT/config/audio/ucm2" ]; then
     cp -r "$REPO_ROOT/config/audio/ucm2/." "$UCM_DST/"
 fi
 
+# Install libinput touchpad configs
+LIBINPUT_DST="config/includes.chroot/etc/cobaltos/libinput/boards"
+mkdir -p "$LIBINPUT_DST"
+if [ -d "$REPO_ROOT/config/libinput/boards" ]; then
+    cp -r "$REPO_ROOT/config/libinput/boards/." "$LIBINPUT_DST/"
+fi
+
 # Install zram-generator config
 ZRAM_DST="config/includes.chroot/etc/systemd/zram-generator.conf.d"
 mkdir -p "$ZRAM_DST"

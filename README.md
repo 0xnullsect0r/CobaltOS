@@ -32,7 +32,8 @@ CobaltOS is a lightweight, user-friendly, Debian-based Linux distribution design
 | v0.3.0 | ✅ Released | Install flow — debootstrap pipeline, GitHub Actions CI, systemd-boot, Plymouth |
 | v0.4.0 | ✅ Released | Config — UCM audio profiles, live session autostart, COSMIC theme, hardware probe |
 | v0.5.0 | ✅ Released | Polish — 60+ board database, password wiring, complete zshrc, package list |
-| v1.0.0 | 🚀 Released | First stable release — all components complete and integrated |
+| v1.0.0 | ✅ Released | First stable release — all components complete and integrated |
+| v1.1.0 | 🚀 Released | Touchpad config, btrfs filesystem option, smart update daemon |
 
 ---
 

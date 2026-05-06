@@ -72,6 +72,10 @@ const APT_PACKAGES: &[&str] = &[
     "bat",
     "exa",
     "zoxide",
+    // Filesystem tools
+    "e2fsprogs",
+    "dosfstools",
+    "btrfs-progs",
 ];
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
@@ -136,6 +140,15 @@ pub struct InstallConfig {
     pub password: String,
     pub hostname: String,
     pub use_full_disk: bool,
+    pub filesystem: Filesystem,
+}
+
+/// Root filesystem choice for the installation.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Filesystem {
+    #[default]
+    Ext4,
+    Btrfs,
 }
 
 /// Execute the full CobaltOS installation pipeline.
@@ -153,7 +166,7 @@ pub async fn run_install(
 
     // 1 — Partition
     step!(5, "Partitioning disk", {
-        crate::partition::partition_disk(&config.disk).await
+        crate::partition::partition_disk(&config.disk, &config.filesystem).await
     });
 
     // 2 — Mount

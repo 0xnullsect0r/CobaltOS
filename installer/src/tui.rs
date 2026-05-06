@@ -17,7 +17,7 @@ use ratatui::{
 use std::io::{self, Stdout};
 
 use crate::hardware::{DiskInfo, HardwareInfo};
-use crate::installer::{run_install, InstallConfig, InstallStep};
+use crate::installer::{run_install, Filesystem, InstallConfig, InstallStep};
 
 // ── Palette ───────────────────────────────────────────────────────────────────
 
@@ -32,6 +32,7 @@ struct TuiState {
     step: InstallStep,
     hardware: Option<HardwareInfo>,
     disk_list: ListState,
+    filesystem: Filesystem,
     locale: String,
     timezone: String,
     username: String,
@@ -52,6 +53,7 @@ impl TuiState {
             step: InstallStep::Welcome,
             hardware,
             disk_list,
+            filesystem: Filesystem::Ext4,
             locale: "en_US".into(),
             timezone: "America/New_York".into(),
             username: String::new(),
@@ -166,6 +168,13 @@ async fn handle_key(state: &mut TuiState, key: KeyCode) {
                     let i = state.disk_list.selected().unwrap_or(0);
                     state.disk_list.select(Some((i + 1).min(disk_count.saturating_sub(1))));
                 }
+                // Toggle filesystem with 'f'
+                KeyCode::Char('f') => {
+                    state.filesystem = match state.filesystem {
+                        Filesystem::Ext4 => Filesystem::Btrfs,
+                        Filesystem::Btrfs => Filesystem::Ext4,
+                    };
+                }
                 KeyCode::Enter | KeyCode::Right | KeyCode::Char('n') => {
                     if let Some(err) = state.validate() {
                         state.error = Some(err.into());
@@ -246,6 +255,7 @@ async fn handle_key(state: &mut TuiState, key: KeyCode) {
                     hostname: state.hostname.clone(),
                     use_full_disk: true,
                     password: state.password.clone(),
+                    filesystem: state.filesystem.clone(),
                 };
                 state.step = InstallStep::Installing;
                 state.progress = 0;
@@ -300,7 +310,7 @@ fn draw_header(f: &mut Frame, area: Rect, step: &InstallStep) {
 
 fn draw_footer(f: &mut Frame, area: Rect, step: &InstallStep) {
     let hint = match step {
-        InstallStep::DiskSetup => " ↑/↓ select disk  Enter: next  b: back  q: quit ",
+        InstallStep::DiskSetup => " ↑/↓ select disk  f: toggle filesystem  Enter: next  b: back  q: quit ",
         InstallStep::Location | InstallStep::Account => " Tab: next field  Enter (last field): next  b: back ",
         InstallStep::Installing => " Please wait… ",
         InstallStep::Done => " Press any key to exit ",
@@ -396,7 +406,12 @@ fn draw_device_check(f: &mut Frame, area: Rect, state: &TuiState) {
 }
 
 fn draw_disk_setup(f: &mut Frame, area: Rect, state: &mut TuiState) {
-    let area = centered_rect(70, 70, area);
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .margin(2)
+        .constraints([Constraint::Min(6), Constraint::Length(5)])
+        .split(centered_rect(70, 75, area));
+
     let disks: Vec<ListItem> = state
         .hardware
         .as_ref()
@@ -417,7 +432,19 @@ fn draw_disk_setup(f: &mut Frame, area: Rect, state: &mut TuiState) {
         .block(Block::default().title(" Choose Installation Disk ").borders(Borders::ALL))
         .highlight_style(Style::default().bg(COBALT).add_modifier(Modifier::BOLD))
         .highlight_symbol("▶ ");
-    f.render_stateful_widget(list, area, &mut state.disk_list);
+    f.render_stateful_widget(list, chunks[0], &mut state.disk_list);
+
+    let fs_label = match state.filesystem {
+        Filesystem::Ext4  => "  [●] ext4 (recommended)    [ ] btrfs+zstd",
+        Filesystem::Btrfs => "  [ ] ext4 (recommended)    [●] btrfs+zstd",
+    };
+    let fs_lines = vec![
+        Line::from(Span::styled("Filesystem  (press f to toggle)", Style::default().fg(DIM))),
+        Line::from(Span::styled(fs_label, Style::default().fg(COBALT))),
+    ];
+    let fs_widget = Paragraph::new(fs_lines)
+        .block(Block::default().borders(Borders::ALL));
+    f.render_widget(fs_widget, chunks[1]);
 }
 
 fn draw_location(f: &mut Frame, area: Rect, state: &TuiState) {
