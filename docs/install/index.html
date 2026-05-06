@@ -68,7 +68,7 @@
             <li><a href="#step-12">Step 12 — Boot from USB</a></li>
             <li><a href="#step-13">Step 13 — Launch Installer</a></li>
             <li><a href="#step-14">Step 14 — Follow Installer</a></li>
-            <li><a href="#step-15">Step 15 — First Boot</a></li>
+            <li><a href="#step-15">Step 15 — First Boot &amp; Setup</a></li>
             <li><a href="#done">🎉 Done!</a></li>
             <li><a href="#troubleshooting">Troubleshooting</a></li>
           </ul>
@@ -651,30 +651,69 @@
               </div>
             </div>
             <div class="step-body">
+              <div class="callout callout-info">
+                <span class="callout-icon">💡</span>
+                <div class="callout-body">
+                  <h4>GUI and TUI modes</h4>
+                  <p>
+                    The graphical installer (<code>cobalt-installer</code>) opens by default.
+                    If you prefer a keyboard-driven interface, run
+                    <code>cobalt-installer --tui</code> from a terminal.
+                  </p>
+                </div>
+              </div>
               <ol>
                 <li>
-                  <strong>Welcome</strong> — Select your language and keyboard layout.
+                  <strong>Welcome</strong> — Brief overview screen. Click <em>Next</em> to begin.
                 </li>
                 <li>
                   <strong>Device Check</strong> — The installer automatically detects your Chromebook model
-                  and confirms hardware compatibility. Any issues are flagged here.
+                  and confirms UEFI firmware, RAM, and disk compatibility.
+                  Any issues (missing UEFI, low RAM) are flagged here before you proceed.
                 </li>
                 <li>
-                  <strong>Disk Setup</strong> — Choose to erase the entire disk and install CobaltOS
-                  (recommended for most users), or use manual partitioning for advanced users.
-                  <br>Recommended partition layout: <strong>512 MB ESP (FAT32)</strong> + remaining space as <strong>root (ext4)</strong>.
+                  <strong>Disk Setup</strong> — Three choices to make:
+                  <ul style="margin:.5rem 0 .5rem 1.4rem;line-height:1.9;">
+                    <li>
+                      <strong>Target disk</strong> — All detected disks are listed with model and size.
+                      Select the one to install CobaltOS on. <em>All data on it will be erased.</em>
+                    </li>
+                    <li>
+                      <strong>Filesystem</strong> —
+                      <strong>ext4</strong> (recommended — fast, widely supported) or
+                      <strong>btrfs</strong> (adds transparent zstd:3 compression and
+                      <code>@</code> / <code>@home</code> / <code>@snapshots</code> subvolumes
+                      used by the update rollback system).
+                    </li>
+                    <li>
+                      <strong>Partitioning mode</strong> —
+                      <strong>Guided</strong> (recommended) uses the entire disk: 512 MiB EFI + all remaining as root.
+                      <strong>Manual</strong> lets you specify the EFI size in MiB and root size in GiB
+                      (leave root at 0 to use all remaining space).
+                      In the TUI, press <kbd>m</kbd> to toggle mode, <kbd>e</kbd> to edit EFI size,
+                      <kbd>r</kbd> to edit root size.
+                    </li>
+                  </ul>
                 </li>
                 <li>
-                  <strong>Location</strong> — Select your timezone.
+                  <strong>Location</strong> — Enter your locale (e.g. <code>en_US</code>) and timezone
+                  (e.g. <code>America/New_York</code>).
                 </li>
                 <li>
-                  <strong>Account</strong> — Create your username and password.
+                  <strong>Account</strong> — Create your Linux username, password, and hostname.
+                  The username must be lowercase with no spaces.
+                  The password must be at least 6 characters.
                 </li>
                 <li>
-                  <strong>Ready to Install</strong> — Review your choices and click <strong>Install</strong>.
+                  <strong>Confirm</strong> — Review your choices: disk, partitioning mode, filesystem,
+                  locale, timezone, username, and hostname.
+                  <em>This is your last chance to go back before data is erased.</em>
+                  Click <strong>Install Now</strong> (or press <kbd>Enter</kbd> in TUI).
                 </li>
                 <li>
-                  <strong>Installing</strong> — Sit back! Installation takes about <strong>5–10 minutes</strong>.
+                  <strong>Installing</strong> — Sit back! The installer runs the full debootstrap pipeline:
+                  partitioning → mounting → debootstrap → kernel → bootloader → timezone → locale → user account → hardware probe → services → reboot prompt.
+                  This takes about <strong>5–10 minutes</strong> depending on your disk speed.
                 </li>
                 <li>
                   <strong>Done</strong> — Click <strong>"Restart Now"</strong> and remove the USB drive when prompted.
@@ -688,21 +727,72 @@
             <div class="step-header">
               <div class="step-num">15</div>
               <div>
-                <p class="step-title">First Boot</p>
-                <p class="step-desc">CobaltOS configures your hardware automatically on first login.</p>
+                <p class="step-title">First Boot — OOBE &amp; Welcome</p>
+                <p class="step-desc">CobaltOS guides you through hardware setup and personalisation on first login.</p>
               </div>
             </div>
             <div class="step-body">
-              <ol>
-                <li>The Chromebook will reboot directly into CobaltOS.</li>
-                <li>Log in with the username and password you created.</li>
-                <li>On first login, the <code>cobalt-welcome</code> app will launch automatically.</li>
-                <li>It will guide you through final setup: appearance, software recommendations, and account options.</li>
-                <li>
-                  Your Chromebook keyboard's top row and Search key will be automatically remapped
-                  by <code>cobalt-hardware-probe</code> — no manual configuration needed.
-                </li>
+              <h3 style="font-size:.95rem;margin:.5rem 0;">A — Automatic hardware configuration</h3>
+              <p>
+                On first boot, <code>cobalt-hardware-probe</code> detects your exact Chromebook board and automatically applies:
+              </p>
+              <ul style="margin:.4rem 0 1rem 1.4rem;line-height:1.9;">
+                <li><strong>Keyboard remapping</strong> — Top row (F1–F10 / brightness / volume) and Search → Caps Lock via <code>keyd</code></li>
+                <li><strong>Audio UCM profile</strong> — Board-specific ALSA/PipeWire routing so speakers and microphone work correctly</li>
+                <li><strong>Touchpad sensitivity</strong> — libinput quirks tuned per board (lighter for smaller trackpads, heavier for Pixelbook-class)</li>
+                <li><strong>3-finger workspace gestures</strong> — Writes COSMIC compositor gesture config for swipe-left/right workspace switching</li>
+                <li><strong>HiDPI scaling</strong> — Detected from DMI/display info and applied to COSMIC</li>
+              </ul>
+
+              <h3 style="font-size:.95rem;margin:.5rem 0;">B — OOBE (Out-of-Box Experience)</h3>
+              <p>
+                <code>cobalt-oobe</code> launches automatically before the COSMIC desktop loads.
+                It presents a 6-page wizard:
+              </p>
+              <ol style="margin:.4rem 0 1rem 1.4rem;line-height:1.9;">
+                <li><strong>Welcome</strong> — Introduction to CobaltOS</li>
+                <li><strong>Connect</strong> — WiFi / network setup</li>
+                <li><strong>Timezone</strong> — Pick from 15 common zones</li>
+                <li><strong>Privacy</strong> — Enable or disable analytics &amp; location services (both off by default)</li>
+                <li><strong>Account</strong> — Set your display name (shown in the desktop panel)</li>
+                <li><strong>Ready</strong> — Confirm and launch the desktop</li>
               </ol>
+              <p>
+                When OOBE finishes, <code>cobalt-first-boot.service</code> applies your choices system-wide:
+                timezone via <code>timedatectl</code>, locale via <code>locale-gen</code> + <code>localectl</code>,
+                display name via <code>chfn</code>, and COSMIC dark/light theme.
+                It's idempotent — it only runs once, then leaves a marker so it never runs again.
+              </p>
+
+              <h3 style="font-size:.95rem;margin:.5rem 0;">C — Welcome Wizard</h3>
+              <p>
+                After the desktop loads, <code>cobalt-welcome</code> opens automatically with a 6-page wizard:
+              </p>
+              <ol style="margin:.4rem 0 1rem 1.4rem;line-height:1.9;">
+                <li><strong>Welcome</strong> — Tips for new users</li>
+                <li><strong>Appearance</strong> — Light, Dark, or Cobalt Blue theme (applies live to COSMIC)</li>
+                <li><strong>Locale</strong> — Select from 23 locales in a scrollable list</li>
+                <li><strong>Browser</strong> — Firefox (default), Chromium, Brave, or None</li>
+                <li><strong>Apps</strong> — Choose from 10 curated Flatpak apps: VS Code, GIMP, Inkscape, VLC, OBS Studio, LibreOffice, Steam, Signal, Obsidian, Kdenlive</li>
+                <li><strong>Finish</strong> — Your theme, locale, and browser preferences are saved; selected apps queue for installation</li>
+              </ol>
+              <p>
+                Selected Flatpak apps install silently in the background via
+                <code>cobalt-flatpak-install.service</code> — you can use the desktop immediately
+                without waiting for downloads to complete.
+              </p>
+
+              <div class="callout callout-success">
+                <span class="callout-icon">✅</span>
+                <div class="callout-body">
+                  <h4>Your system is ready</h4>
+                  <p>
+                    After the welcome wizard, CobaltOS is fully configured for your Chromebook.
+                    <code>cobalt-update</code> will check for updates automatically every 6 hours
+                    and notify you when new packages are available.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -849,6 +939,98 @@
               </div>
             </li>
 
+            <li class="faq-item">
+              <button class="faq-question">
+                "An update broke my system — how do I roll back?"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  CobaltOS automatically rolls back if an upgrade fails mid-run.
+                  If you need to trigger a rollback manually, open a terminal and run:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>cobalt-update rollback</code></pre>
+                <p>
+                  This restores the <code>dpkg</code> package state to the snapshot taken before the last upgrade.
+                  If you installed CobaltOS on a <strong>btrfs</strong> filesystem, a read-only subvolume snapshot
+                  was also created at <code>/.snapshots/pre-update-&lt;timestamp&gt;</code>.
+                  You can boot from it via the systemd-boot menu if needed.
+                </p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "How do I see or use my btrfs snapshots?"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  If you chose <strong>btrfs</strong> during installation, CobaltOS automatically creates
+                  a read-only snapshot of the root subvolume before every upgrade.
+                  To list available snapshots:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>sudo btrfs subvolume list /.snapshots</code></pre>
+                <p>
+                  To mount and inspect a snapshot:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>sudo mount -o subvol=@snapshots /dev/mmcblk0p2 /mnt/snapshot
+# browse /mnt/snapshot, then unmount:
+sudo umount /mnt/snapshot</code></pre>
+                <p>
+                  Up to 3 pre-upgrade snapshots are kept; older ones are pruned automatically.
+                </p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "My touchpad / gestures don't work correctly"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Run the hardware probe gesture fix to regenerate the COSMIC and Xorg gesture config for your board:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>cobalt-hardware-probe --fix-gestures</code></pre>
+                <p>
+                  For general touchpad issues (scroll speed, tap-to-click, palm rejection):
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>cobalt-hardware-probe --fix-touchpad</code></pre>
+                <p>Log out and back in for the changes to take effect in the Wayland session.</p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "The OOBE or Welcome wizard didn't launch"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  You can launch them manually from a terminal at any time:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code># OOBE (system setup — timezone, privacy, account)
+cobalt-oobe
+
+# Welcome wizard (appearance, locale, browser, apps)
+cobalt-welcome</code></pre>
+                <p>
+                  To re-run <code>cobalt-first-boot</code> (which applies OOBE settings system-wide),
+                  remove the completion marker and start the service:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>rm ~/.config/cobaltos/.first-boot-done
+systemctl --user start cobalt-first-boot.service</code></pre>
+              </div>
+            </li>
+
           </ul>
         </section>
 
@@ -899,7 +1081,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 CobaltOS — GPL-3.0 License</p>
+      <p>© 2026 CobaltOS — GPL-3.0 License</p>
       <p>Built with ❤️ for Chromebook users everywhere</p>
     </div>
   </div>

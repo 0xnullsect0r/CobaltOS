@@ -34,7 +34,7 @@
 <!-- ===== HERO ===== -->
 <section class="hero" aria-labelledby="hero-heading">
   <div class="container">
-    <div class="hero-badge">🚀 Open Source · Debian-based · Chromebook-native</div>
+    <div class="hero-badge">🚀 v1.4.0 · Open Source · Debian-based · Chromebook-native</div>
     <h1 id="hero-heading">A faster, freer Linux<br><span>for your Chromebook.</span></h1>
     <p class="hero-sub">
       CobaltOS replaces ChromeOS with a full, privacy-respecting Linux desktop.
@@ -97,8 +97,9 @@
         <div class="feature-icon">💻</div>
         <h3>Chromebook-native hardware</h3>
         <p>
-          Keyboard remapping, audio UCM profiles, touchpad gestures, and HiDPI scaling
-          configured automatically for your exact Chromebook model on first boot.
+          Keyboard remapping via <code>keyd</code>, audio UCM profiles, libinput touchpad
+          tuning, 3-finger workspace gestures, and HiDPI scaling — all applied automatically
+          for your exact board on first boot.
         </p>
       </div>
 
@@ -108,18 +109,20 @@
         <p>
           <code>ripgrep</code>, <code>fd</code>, <code>eza</code>, <code>bat</code>,
           <code>zoxide</code>, <code>starship</code> and more — pre-installed and
-          aliased for a modern shell experience.
+          aliased for a modern shell experience out of the box.
         </p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon">🛠️</div>
-        <h3>Friendly installer</h3>
+        <h3>Flexible installer</h3>
         <p>
-          <code>cobalt-installer</code> guides you step-by-step with automatic
-          hardware detection, UEFI firmware check, and auto-partitioning.
-          Choose <strong>ext4</strong> or <strong>btrfs</strong> (with subvolumes + zstd compression).
-          GUI and TUI modes available.
+          <code>cobalt-installer</code> offers a full GUI and a TUI mode.
+          Choose <strong>Guided</strong> (entire disk, one click) or
+          <strong>Manual</strong> (custom EFI and root partition sizes).
+          Pick <strong>ext4</strong> or <strong>btrfs</strong>
+          (with <code>@</code>, <code>@home</code>, <code>@snapshots</code>
+          subvolumes and zstd:3 compression).
         </p>
       </div>
 
@@ -129,7 +132,8 @@
         <p>
           No Google account. No telemetry. No cloud lock-in.
           Debian Stable base with Flatpak for sandboxed apps from Flathub.
-          Privacy preferences configured during setup — analytics and location access off by default.
+          Analytics and location access are <strong>off by default</strong> —
+          configure them during the OOBE setup wizard.
         </p>
       </div>
 
@@ -138,18 +142,21 @@
         <h3>Huge software library</h3>
         <p>
           Full <code>apt</code> package ecosystem plus Flatpak with Flathub enabled
-          by default. Install anything from VS Code to Blender in seconds.
-          Welcome wizard installs your chosen browser and apps on first login.
+          by default. The Welcome wizard lets you pick your browser (Firefox, Chromium,
+          Brave) and 10+ curated apps — they install automatically in the background
+          on first login.
         </p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon">🔄</div>
-        <h3>Smart auto-updates</h3>
+        <h3>Smart auto-updates with rollback</h3>
         <p>
-          <code>cobalt-update</code> handles <code>apt</code> and Flatpak updates
-          with GUI tray notifications and safe rollback on failure.
-          A systemd timer checks every 6 hours — only notifying when new packages arrive.
+          <code>cobalt-update</code> checks every 6 hours via systemd timer.
+          Before every upgrade it saves a <code>dpkg</code> package snapshot;
+          on btrfs systems it also creates a read-only subvolume snapshot.
+          If an upgrade fails the system rolls back automatically.
+          Run <code>cobalt-update rollback</code> to restore manually.
         </p>
       </div>
 
@@ -157,9 +164,11 @@
         <div class="feature-icon">✨</div>
         <h3>Polished first-run experience</h3>
         <p>
-          <code>cobalt-oobe</code> walks you through timezone, privacy, and account setup before
-          the desktop loads. <code>cobalt-welcome</code> then handles appearance, locale,
-          browser choice, and app recommendations.
+          <strong>cobalt-oobe</strong> (6 pages) walks you through timezone, privacy,
+          and account setup before the desktop loads.
+          <strong>cobalt-welcome</strong> (6 pages) then handles appearance, locale,
+          browser choice, and curated app recommendations — the selected apps install
+          via Flatpak in the background while you explore.
         </p>
       </div>
 
@@ -169,9 +178,153 @@
         <p>
           Mainline LTS kernel with Chromebook-specific patches. Every standard Linux
           application, developer tool, and game works as expected.
+          Plymouth boot splash with a custom CobaltOS theme.
         </p>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMPONENTS ===== -->
+<section class="section" style="padding-top:0;" aria-labelledby="components-heading">
+  <div class="container">
+    <div class="section-heading">
+      <span class="overline">Built-in Rust Components</span>
+      <h2 id="components-heading">Five custom tools, written from scratch</h2>
+      <p>Every piece of system tooling in CobaltOS is purpose-built for Chromebooks in Rust.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Component</th>
+            <th>What it does</th>
+            <th>Key features</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>cobalt-installer</code></td>
+            <td>Installation wizard (GUI + TUI)</td>
+            <td>Hardware detection, guided &amp; manual partitioning, ext4 / btrfs, debootstrap pipeline</td>
+          </tr>
+          <tr>
+            <td><code>cobalt-hardware-probe</code></td>
+            <td>Hardware detection &amp; config</td>
+            <td>60+ board database, keyboard remapping, audio UCM, touchpad tuning, COSMIC gesture config, Xorg fallback</td>
+          </tr>
+          <tr>
+            <td><code>cobalt-update</code></td>
+            <td>System &amp; app update daemon</td>
+            <td>apt + Flatpak, smart notifications (notify only on new packages), dpkg snapshot, btrfs snapshot, auto-rollback on failure, 6h timer</td>
+          </tr>
+          <tr>
+            <td><code>cobalt-welcome</code></td>
+            <td>Post-login welcome wizard (6 pages)</td>
+            <td>Appearance (light/dark/cobalt theme), locale, browser choice, 10 curated Flatpak apps, writes COSMIC theme config</td>
+          </tr>
+          <tr>
+            <td><code>cobalt-oobe</code></td>
+            <td>Out-of-box experience (6 pages)</td>
+            <td>Timezone, privacy (analytics + location), display name/account setup, applies config system-wide via <code>cobalt-first-boot</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OOBE / WELCOME FLOW ===== -->
+<section class="section" style="padding-top:0;" aria-labelledby="oobe-heading">
+  <div class="container">
+    <div class="section-heading">
+      <span class="overline">First-Run Experience</span>
+      <h2 id="oobe-heading">From install to ready — fully guided</h2>
+      <p>CobaltOS holds your hand through every step of initial setup.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem;">
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.8rem;">
+        <h3 style="font-size:1rem;margin-bottom:1.2rem;color:var(--accent);">🚀 cobalt-oobe — Before the desktop</h3>
+        <ol style="padding-left:1.2rem;line-height:2;">
+          <li><strong>Welcome</strong> — Overview of the setup process</li>
+          <li><strong>Connect</strong> — WiFi / network setup</li>
+          <li><strong>Timezone</strong> — Pick from 15 common zones (scrollable)</li>
+          <li><strong>Privacy</strong> — Toggle analytics &amp; location (off by default)</li>
+          <li><strong>Account</strong> — Set your display name</li>
+          <li><strong>Ready</strong> — Launch the desktop</li>
+        </ol>
+        <p style="font-size:.85rem;margin-top:.8rem;color:var(--text-muted);">
+          On completion, <code>cobalt-first-boot.service</code> applies timezone, locale,
+          display name, and COSMIC theme system-wide via <code>timedatectl</code>, <code>locale-gen</code>, and <code>chfn</code>.
+        </p>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.8rem;">
+        <h3 style="font-size:1rem;margin-bottom:1.2rem;color:var(--accent);">👋 cobalt-welcome — After the desktop loads</h3>
+        <ol style="padding-left:1.2rem;line-height:2;">
+          <li><strong>Welcome</strong> — Overview &amp; quick tips</li>
+          <li><strong>Appearance</strong> — Light / Dark / Cobalt Blue theme</li>
+          <li><strong>Locale</strong> — 23 locales, scrollable</li>
+          <li><strong>Browser</strong> — Firefox, Chromium, Brave, or none</li>
+          <li><strong>Apps</strong> — 10 curated Flatpak apps (VS Code, GIMP, Inkscape, VLC, OBS, LibreOffice, Steam, Signal, Obsidian, Kdenlive)</li>
+          <li><strong>Finish</strong> — Saves preferences, queues app installs</li>
+        </ol>
+        <p style="font-size:.85rem;margin-top:.8rem;color:var(--text-muted);">
+          Flatpak installs run in the background via <code>cobalt-flatpak-install.service</code> so you can use the desktop immediately.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== UPDATE + ROLLBACK ===== -->
+<section class="section" style="padding-top:0;" aria-labelledby="update-heading">
+  <div class="container">
+    <div class="section-heading">
+      <span class="overline">Updates &amp; Safety</span>
+      <h2 id="update-heading">Automatic updates with a safety net</h2>
+      <p>cobalt-update keeps your system current without risk of a broken boot.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-bottom:2rem;">
+      <div class="feature-card">
+        <div class="feature-icon" style="font-size:1.5rem;">⏱</div>
+        <h3 style="font-size:.95rem;">6-hour systemd timer</h3>
+        <p style="font-size:.88rem;">Checks for updates automatically. Notifies only when new packages arrive — not every cycle.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="font-size:1.5rem;">📸</div>
+        <h3 style="font-size:.95rem;">Pre-upgrade snapshot</h3>
+        <p style="font-size:.88rem;">Before every apt upgrade, a <code>dpkg --get-selections</code> snapshot is saved. On btrfs, a read-only subvolume snapshot is also created in <code>/.snapshots/</code>.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="font-size:1.5rem;">↩️</div>
+        <h3 style="font-size:.95rem;">Automatic rollback</h3>
+        <p style="font-size:.88rem;">If an upgrade fails, CobaltOS automatically restores the saved dpkg state and notifies you. Run <code>cobalt-update rollback</code> to trigger it manually.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="font-size:1.5rem;">📦</div>
+        <h3 style="font-size:.95rem;">apt + Flatpak</h3>
+        <p style="font-size:.88rem;">Both system packages and Flatpak apps are upgraded together in a single scheduled pass.</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Command</th><th>What it does</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cobalt-update check</code></td><td>Check for available updates and notify if new packages found</td></tr>
+          <tr><td><code>cobalt-update apply</code></td><td>Apply all pending apt + Flatpak updates (with pre-upgrade snapshot)</td></tr>
+          <tr><td><code>cobalt-update rollback</code></td><td>Restore the most recent pre-upgrade dpkg snapshot</td></tr>
+          <tr><td><code>cobalt-update daemon</code></td><td>Run the 6-hour background daemon (started automatically by systemd)</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -226,7 +379,7 @@
       <div class="feature-card" style="text-align:center; padding:1.4rem 1rem;">
         <div class="feature-icon" style="margin:0 auto 0.8rem;">5</div>
         <h3 style="font-size:.95rem;">Install CobaltOS</h3>
-        <p style="font-size:.85rem;">Boot from USB and follow the friendly guided installer.</p>
+        <p style="font-size:.85rem;">Boot from USB and follow the guided installer — GUI or TUI mode.</p>
       </div>
     </div>
 
@@ -270,6 +423,68 @@
   </div>
 </section>
 
+<!-- ===== CHANGELOG ===== -->
+<section class="section" style="padding-top:0;" aria-labelledby="changelog-heading">
+  <div class="container">
+    <div class="section-heading">
+      <span class="overline">Release History</span>
+      <h2 id="changelog-heading">Changelog</h2>
+      <p>CobaltOS is actively developed. Each release brings meaningful improvements.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Version</th><th>Highlights</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>v1.4.0</strong> <span style="background:var(--accent);color:#fff;border-radius:4px;padding:1px 7px;font-size:.75rem;vertical-align:middle;">Latest</span></td>
+            <td>
+              <strong>cobalt-update rollback</strong>: dpkg snapshot + btrfs subvolume snapshot before every upgrade; auto-rollback on failure; <code>cobalt-update rollback</code> CLI command.
+              <strong>Installer manual partitioning</strong>: Guided vs Manual mode; custom EFI MiB and root GiB inputs in GUI and TUI.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>v1.3.0</strong></td>
+            <td>
+              COSMIC 3-finger workspace gesture config per board (EVE/ATLAS/NAMI sensitivity tuning).
+              Filesystem shown on installer Confirm screen. <code>cobalt-first-boot</code> service applies OOBE settings system-wide.
+              <code>cobalt-welcome</code> triggers Flatpak install on exit.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>v1.2.0</strong></td>
+            <td>
+              cobalt-welcome expanded to 6 pages: Locale (23 options) + Browser choice (Firefox/Chromium/Brave/None).
+              cobalt-oobe expanded to 6 pages: Timezone, Privacy (analytics + location), Account setup.
+              systemd timers for update + Flatpak install. cobalt-first-boot integration.
+            </td>
+          </tr>
+          <tr>
+            <td><strong>v1.1.0</strong></td>
+            <td>
+              Touchpad quirks with per-board libinput sensitivity (EVE/ATLAS/NAMI/generic).
+              COSMIC <code>touchpad.toml</code> configs. btrfs installer support (subvolumes + zstd:3).
+              Update manager state persistence (smart notifications).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>v1.0.0</strong></td>
+            <td>First stable release. Full debootstrap install pipeline, hardware probe with 60+ board DB, welcome wizard, OOBE, update manager, Plymouth splash, GitHub Pages docs.</td>
+          </tr>
+          <tr>
+            <td><code>v0.1.0 – v0.5.0</code></td>
+            <td>Initial scaffolding, Rust workspace, installer GUI/TUI, hardware probe, docs site.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;">
+      <a href="https://github.com/0xnullsect0r/CobaltOS/releases" class="btn btn-outline" target="_blank" rel="noopener">View all releases on GitHub ↗</a>
+    </div>
+  </div>
+</section>
+
 <!-- ===== FOOTER ===== -->
 <footer class="footer">
   <div class="container">
@@ -305,7 +520,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 CobaltOS — Released under the <a href="https://github.com/0xnullsect0r/CobaltOS/blob/main/LICENSE">GPL-3.0 License</a></p>
+      <p>© 2026 CobaltOS — Released under the <a href="https://github.com/0xnullsect0r/CobaltOS/blob/main/LICENSE">GPL-3.0 License</a></p>
       <p>Built with ❤️ for Chromebook users everywhere</p>
     </div>
   </div>
