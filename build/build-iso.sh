@@ -89,8 +89,8 @@ lb config \
     --debian-installer none \
     --firmware-binary true \
     --firmware-chroot true \
+    --linux-packages "" \
     --bootappend-live "boot=live components quiet splash" \
-    --linux-packages "linux-image-amd64 linux-headers-amd64" \
     --apt-recommends false
 
 # Copy package lists
