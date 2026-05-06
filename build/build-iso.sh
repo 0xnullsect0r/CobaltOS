@@ -71,6 +71,7 @@ done
 
 # --- Configure live-build ---
 lb config \
+    --mode debian \
     --architecture amd64 \
     --distribution bookworm \
     --archive-areas "main contrib non-free non-free-firmware" \
@@ -94,8 +95,7 @@ lb config \
     --apt-recommends false
 
 # --- Extra APT sources ---
-# bookworm-backports: eza, keyd
-# trixie: COSMIC desktop (not yet in bookworm)
+# trixie: keyd (not in bookworm)
 mkdir -p config/archives
 
 cat > config/archives/trixie.list.chroot <<'EOF'
