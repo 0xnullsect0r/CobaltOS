@@ -109,7 +109,7 @@ Package: *
 Pin: release n=trixie
 Pin-Priority: 100
 
-Package: keyd eza
+Package: keyd
 Pin: release n=trixie
 Pin-Priority: 900
 EOF
