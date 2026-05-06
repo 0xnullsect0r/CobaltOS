@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supported Devices — CobaltOS</title>
+  <meta name="description" content="Check if your Chromebook is supported by CobaltOS. Browse all compatible devices by model name, board name, platform, and write-protect method." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230047AB'/><text y='.9em' font-size='70' x='50%' text-anchor='middle' fill='white'>C</text></svg>" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">
+      <span class="logo-dot"></span>
+      CobaltOS
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="index.html" class="active">Devices</a></li>
+      <li><a href="../install/index.html">Install Guide</a></li>
+      <li><a href="https://github.com/0xnullsect0r/CobaltOS" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="../install/index.html" class="nav-cta">Install Now</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== PAGE HERO ===== -->
+<div class="page-hero">
+  <div class="container">
+    <h1>💻 Supported Devices</h1>
+    <p>
+      CobaltOS supports all Chromebooks compatible with
+      <a href="https://docs.mrchromebox.tech/docs/supported-devices.html" target="_blank" rel="noopener">MrChromebox's UEFI Full ROM firmware</a>
+      — covering most Chromebooks manufactured from 2012 onwards.
+    </p>
+  </div>
+</div>
+
+<main class="section">
+  <div class="container">
+
+    <!-- Intro callout -->
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <div class="callout-body">
+        <h4>Support is identified by board name, not model name</h4>
+        <p>
+          Many Chromebooks share hardware under different product names.
+          Find your <strong>board name</strong> using the steps below, then look it up in the table.
+        </p>
+      </div>
+    </div>
+
+    <!-- How to find board name -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.8rem;margin-bottom:2.5rem;">
+      <h2 style="margin-bottom:1.2rem;font-size:1.2rem;">🔍 How to find your board name</h2>
+      <ol class="board-steps">
+        <li>Turn on your Chromebook and make sure it has booted into ChromeOS.</li>
+        <li>
+          Open Chrome and navigate to <code>chrome://version</code> — look for the
+          <strong>Platform</strong> or <strong>Firmware Version</strong> field.
+          Your board name appears there (e.g. <code>BOBBA</code>).
+        </li>
+        <li>
+          Alternatively: hold <kbd>Esc</kbd> + <kbd>Refresh ↻</kbd> + <kbd>Power</kbd>
+          to enter Recovery Mode. Your board name is printed at the bottom of the screen.
+        </li>
+        <li>
+          On tablet-form Chromebooks (no keyboard): hold
+          <kbd>Volume Up</kbd> + <kbd>Volume Down</kbd> + <kbd>Power</kbd> instead.
+        </li>
+      </ol>
+    </div>
+
+    <!-- Search & filter controls -->
+    <div class="devices-controls">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          type="search"
+          id="deviceSearch"
+          placeholder="Search by device name, board name, or manufacturer…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+      <select class="filter-select" id="platformFilter" aria-label="Filter by platform">
+        <option value="">All Platforms</option>
+        <optgroup label="Intel">
+          <option value="sandy bridge">Sandy Bridge</option>
+          <option value="ivy bridge">Ivy Bridge</option>
+          <option value="haswell">Haswell</option>
+          <option value="broadwell">Broadwell</option>
+          <option value="bay trail">Bay Trail</option>
+          <option value="braswell">Braswell</option>
+          <option value="apollo lake">Apollo Lake</option>
+          <option value="gemini lake">Gemini Lake</option>
+          <option value="kaby lake">Kaby Lake</option>
+          <option value="coffee lake">Coffee Lake</option>
+          <option value="whiskey lake">Whiskey Lake</option>
+          <option value="comet lake">Comet Lake</option>
+          <option value="ice lake">Ice Lake</option>
+          <option value="jasper lake">Jasper Lake</option>
+          <option value="tiger lake">Tiger Lake</option>
+          <option value="alder lake">Alder Lake</option>
+          <option value="raptor lake">Raptor Lake</option>
+        </optgroup>
+        <optgroup label="AMD">
+          <option value="stoney ridge">Stoney Ridge</option>
+          <option value="picasso/dali">Picasso/Dali</option>
+          <option value="cezanne/barcelo">Cezanne/Barcelo</option>
+          <option value="mendocino">Mendocino</option>
+          <option value="phoenix">Phoenix</option>
+        </optgroup>
+      </select>
+      <select class="filter-select" id="wpFilter" aria-label="Filter by write-protect method">
+        <option value="">All WP Methods</option>
+        <option value="screw">WP Screw</option>
+        <option value="battery">Battery Disconnect</option>
+        <option value="cr50">CR50/GSC</option>
+      </select>
+      <span class="device-count" id="deviceCount"></span>
+    </div>
+
+    <!-- Device table -->
+    <div class="table-wrap">
+      <table aria-label="Supported Chromebook devices">
+        <thead>
+          <tr>
+            <th>Device Name</th>
+            <th>Board Name</th>
+            <th>Manufacturer</th>
+            <th>Platform</th>
+            <th>Full ROM</th>
+            <th>WP Method</th>
+          </tr>
+        </thead>
+        <tbody id="deviceTableBody">
+          <!-- Sandy Bridge -->
+          <tr data-platform="sandy bridge" data-wp="screw">
+            <td>Chromebook Series 5 550</td>
+            <td><code>LUMPY</code></td>
+            <td>Samsung</td>
+            <td>Sandy Bridge</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="sandy bridge" data-wp="screw">
+            <td>Chromebook 550 (ARM)</td>
+            <td><code>STUMPY</code></td>
+            <td>Samsung</td>
+            <td>Sandy Bridge</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <!-- Ivy Bridge -->
+          <tr data-platform="ivy bridge" data-wp="screw">
+            <td>Chromebook Pixel (2013)</td>
+            <td><code>LINK</code></td>
+            <td>Google</td>
+            <td>Ivy Bridge</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="ivy bridge" data-wp="screw">
+            <td>Chromebook 14 (HP)</td>
+            <td><code>FALCO</code></td>
+            <td>HP</td>
+            <td>Ivy Bridge</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="ivy bridge" data-wp="screw">
+            <td>Chromebook 11 (C710)</td>
+            <td><code>PARROT</code></td>
+            <td>Acer</td>
+            <td>Ivy Bridge</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <!-- Haswell -->
+          <tr data-platform="haswell" data-wp="screw">
+            <td>Chromebook Pixel (2015)</td>
+            <td><code>SAMUS</code></td>
+            <td>Google</td>
+            <td>Haswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="haswell" data-wp="screw">
+            <td>Chromebook 14 (CB3-431)</td>
+            <td><code>PEPPY</code></td>
+            <td>Acer</td>
+            <td>Haswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="haswell" data-wp="screw">
+            <td>Chromebook 11 (C720)</td>
+            <td><code>PEPPY</code></td>
+            <td>Acer</td>
+            <td>Haswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="haswell" data-wp="screw">
+            <td>Chromebook 13 (G1)</td>
+            <td><code>LEON</code></td>
+            <td>HP</td>
+            <td>Haswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="haswell" data-wp="screw">
+            <td>Chromebox CN60</td>
+            <td><code>PANTHER</code></td>
+            <td>Asus</td>
+            <td>Haswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <!-- Broadwell -->
+          <tr data-platform="broadwell" data-wp="screw">
+            <td>Chromebook Pixel (2015 LS)</td>
+            <td><code>SAMUS</code></td>
+            <td>Google</td>
+            <td>Broadwell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="broadwell" data-wp="screw">
+            <td>Chromebook 15 (CB5-571)</td>
+            <td><code>AURON_PAINE</code></td>
+            <td>Acer</td>
+            <td>Broadwell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="broadwell" data-wp="screw">
+            <td>Chromebook 14 (Broadwell)</td>
+            <td><code>AURON_YUNA</code></td>
+            <td>Acer</td>
+            <td>Broadwell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="broadwell" data-wp="screw">
+            <td>Chromebook 13 (G4)</td>
+            <td><code>GNAWTY</code></td>
+            <td>HP</td>
+            <td>Broadwell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <!-- Bay Trail -->
+          <tr data-platform="bay trail" data-wp="screw">
+            <td>Chromebook 2 (11)</td>
+            <td><code>ENGUARDE</code></td>
+            <td>Samsung</td>
+            <td>Bay Trail</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="bay trail" data-wp="screw">
+            <td>Chromebook 11 (CB3-111)</td>
+            <td><code>GNAWTY</code></td>
+            <td>Acer</td>
+            <td>Bay Trail</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <!-- Braswell -->
+          <tr data-platform="braswell" data-wp="screw">
+            <td>Chromebook 14 (CB3-431)</td>
+            <td><code>CELES</code></td>
+            <td>Acer</td>
+            <td>Braswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="braswell" data-wp="screw">
+            <td>Chromebook 3 (11)</td>
+            <td><code>EDGAR</code></td>
+            <td>Samsung</td>
+            <td>Braswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <tr data-platform="braswell" data-wp="screw">
+            <td>Chromebook 11 (G4)</td>
+            <td><code>REKS</code></td>
+            <td>HP</td>
+            <td>Braswell</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>WP Screw</td>
+          </tr>
+          <!-- Apollo Lake -->
+          <tr data-platform="apollo lake" data-wp="battery">
+            <td>Chromebook 311 (CB311-9H)</td>
+            <td><code>BOBBA</code></td>
+            <td>Acer</td>
+            <td>Apollo Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <tr data-platform="apollo lake" data-wp="battery">
+            <td>Chromebook 14 (N4000)</td>
+            <td><code>ROBO360</code></td>
+            <td>HP</td>
+            <td>Apollo Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <tr data-platform="apollo lake" data-wp="battery">
+            <td>Chromebook Flip C213</td>
+            <td><code>CORAL</code></td>
+            <td>Asus</td>
+            <td>Apollo Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <!-- Gemini Lake -->
+          <tr data-platform="gemini lake" data-wp="battery">
+            <td>Chromebook 314 (CB314-1H)</td>
+            <td><code>BARD</code></td>
+            <td>Acer</td>
+            <td>Gemini Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <tr data-platform="gemini lake" data-wp="battery">
+            <td>Chromebook 15 (N4000)</td>
+            <td><code>TREEYA</code></td>
+            <td>HP</td>
+            <td>Gemini Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <tr data-platform="gemini lake" data-wp="battery">
+            <td>Chromebook Flip C434</td>
+            <td><code>SHYVANA</code></td>
+            <td>Asus</td>
+            <td>Gemini Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <!-- Kaby Lake -->
+          <tr data-platform="kaby lake" data-wp="cr50">
+            <td>Chromebook Pro</td>
+            <td><code>CAROLINE</code></td>
+            <td>Samsung</td>
+            <td>Kaby Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="kaby lake" data-wp="cr50">
+            <td>Pixelbook (2017)</td>
+            <td><code>EVE</code></td>
+            <td>Google</td>
+            <td>Kaby Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- Coffee Lake -->
+          <tr data-platform="coffee lake" data-wp="cr50">
+            <td>Pixel Slate</td>
+            <td><code>NOCTURNE</code></td>
+            <td>Google</td>
+            <td>Coffee Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="coffee lake" data-wp="cr50">
+            <td>Chromebook Flip C434</td>
+            <td><code>SHYVANA</code></td>
+            <td>Asus</td>
+            <td>Coffee Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="coffee lake" data-wp="cr50">
+            <td>Chromebook 13 (i5)</td>
+            <td><code>RAMMUS</code></td>
+            <td>HP</td>
+            <td>Coffee Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- Whiskey Lake -->
+          <tr data-platform="whiskey lake" data-wp="cr50">
+            <td>Pixelbook Go</td>
+            <td><code>ATLAS</code></td>
+            <td>Google</td>
+            <td>Whiskey Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="whiskey lake" data-wp="cr50">
+            <td>Chromebook 14 (i5)</td>
+            <td><code>SARIEN</code></td>
+            <td>HP</td>
+            <td>Whiskey Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- Comet Lake -->
+          <tr data-platform="comet lake" data-wp="cr50">
+            <td>Chromebook Flip CX5 (i3)</td>
+            <td><code>HELIOS</code></td>
+            <td>Asus</td>
+            <td>Comet Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="comet lake" data-wp="cr50">
+            <td>Chromebook Spin 713 (CP713-2W)</td>
+            <td><code>KINDRED</code></td>
+            <td>Acer</td>
+            <td>Comet Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- Ice Lake -->
+          <tr data-platform="ice lake" data-wp="cr50">
+            <td>Chromebook Spin 713 (i5)</td>
+            <td><code>DRALLION</code></td>
+            <td>Acer</td>
+            <td>Ice Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- Jasper Lake -->
+          <tr data-platform="jasper lake" data-wp="battery">
+            <td>Chromebook 311 (N5100)</td>
+            <td><code>DEDEDE</code></td>
+            <td>Acer</td>
+            <td>Jasper Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <tr data-platform="jasper lake" data-wp="battery">
+            <td>Chromebook 14a (N4500)</td>
+            <td><code>LANTIS</code></td>
+            <td>HP</td>
+            <td>Jasper Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <tr data-platform="jasper lake" data-wp="battery">
+            <td>Chromebook Flip CX1 (N5100)</td>
+            <td><code>GALITH</code></td>
+            <td>Asus</td>
+            <td>Jasper Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <!-- Tiger Lake -->
+          <tr data-platform="tiger lake" data-wp="cr50">
+            <td>Chromebook Spin 514 (CP514-2H)</td>
+            <td><code>VOEMA</code></td>
+            <td>Acer</td>
+            <td>Tiger Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="tiger lake" data-wp="cr50">
+            <td>Chromebook 15 (i3-1115G4)</td>
+            <td><code>VOLTA</code></td>
+            <td>HP</td>
+            <td>Tiger Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="tiger lake" data-wp="cr50">
+            <td>Chromebook Flip CX5 (i5)</td>
+            <td><code>VOXEL</code></td>
+            <td>Asus</td>
+            <td>Tiger Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- Alder Lake -->
+          <tr data-platform="alder lake" data-wp="cr50">
+            <td>Chromebook 514 (CB514-3H)</td>
+            <td><code>BRYA</code></td>
+            <td>Acer</td>
+            <td>Alder Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="alder lake" data-wp="cr50">
+            <td>Chromebook Plus 14 (i3-1215U)</td>
+            <td><code>FELWINTER</code></td>
+            <td>HP</td>
+            <td>Alder Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="alder lake" data-wp="cr50">
+            <td>Chromebook Vibe CX55Flip</td>
+            <td><code>BANSHEE</code></td>
+            <td>Asus</td>
+            <td>Alder Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- Raptor Lake -->
+          <tr data-platform="raptor lake" data-wp="cr50">
+            <td>Chromebook Plus 516 GE</td>
+            <td><code>NISSA</code></td>
+            <td>Acer</td>
+            <td>Raptor Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="raptor lake" data-wp="cr50">
+            <td>Chromebook Plus 15a</td>
+            <td><code>REX</code></td>
+            <td>HP</td>
+            <td>Raptor Lake</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- AMD Stoney Ridge -->
+          <tr data-platform="stoney ridge" data-wp="battery">
+            <td>Chromebook 14 (AMD)</td>
+            <td><code>GRUNT</code></td>
+            <td>HP</td>
+            <td>Stoney Ridge</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <tr data-platform="stoney ridge" data-wp="battery">
+            <td>Chromebook 315 (AMD)</td>
+            <td><code>ALEENA</code></td>
+            <td>Acer</td>
+            <td>Stoney Ridge</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>Battery Disconnect</td>
+          </tr>
+          <!-- AMD Picasso/Dali -->
+          <tr data-platform="picasso/dali" data-wp="cr50">
+            <td>Chromebook Spin 514 (AMD R3)</td>
+            <td><code>ZORK</code></td>
+            <td>Acer</td>
+            <td>Picasso/Dali</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="picasso/dali" data-wp="cr50">
+            <td>Chromebook 14 (AMD R5)</td>
+            <td><code>VILBOZ</code></td>
+            <td>HP</td>
+            <td>Picasso/Dali</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="picasso/dali" data-wp="cr50">
+            <td>Chromebook Flip CM5 (R5)</td>
+            <td><code>WOOMAX</code></td>
+            <td>Asus</td>
+            <td>Picasso/Dali</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- AMD Cezanne/Barcelo -->
+          <tr data-platform="cezanne/barcelo" data-wp="cr50">
+            <td>Chromebook Spin 514 (R5-5625C)</td>
+            <td><code>SKYRIM</code></td>
+            <td>Acer</td>
+            <td>Cezanne/Barcelo</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="cezanne/barcelo" data-wp="cr50">
+            <td>Chromebook Plus 15a (R5-7520C)</td>
+            <td><code>GUYBRUSH</code></td>
+            <td>HP</td>
+            <td>Cezanne/Barcelo</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- AMD Mendocino -->
+          <tr data-platform="mendocino" data-wp="cr50">
+            <td>Chromebook Plus 314 (AMD)</td>
+            <td><code>NYAN</code></td>
+            <td>Acer</td>
+            <td>Mendocino</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <!-- AMD Phoenix -->
+          <tr data-platform="phoenix" data-wp="cr50">
+            <td>Chromebook Plus (R5-7530C)</td>
+            <td><code>MYST</code></td>
+            <td>HP</td>
+            <td>Phoenix</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+          <tr data-platform="phoenix" data-wp="cr50">
+            <td>Chromebook 515 (Phoenix)</td>
+            <td><code>OVIS</code></td>
+            <td>Acer</td>
+            <td>Phoenix</td>
+            <td><span class="badge badge-yes">✓ Yes</span></td>
+            <td>CR50/GSC</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="no-results" id="noResults">No devices match your search. Try a different query or clear the filters.</p>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:1.5rem;">
+      <span class="callout-icon">📋</span>
+      <div class="callout-body">
+        <h4>This list is not exhaustive</h4>
+        <p>
+          The table above covers representative devices across all supported platforms.
+          For the complete list of every supported board, see the
+          <a href="https://docs.mrchromebox.tech/docs/supported-devices.html" target="_blank" rel="noopener">official MrChromebox supported devices page</a>.
+          If your board isn't listed here but appears on MrChromebox's site with Full ROM support, it should work with CobaltOS.
+        </p>
+      </div>
+    </div>
+
+    <!-- Page navigation -->
+    <div class="page-nav">
+      <a href="../index.html" class="page-nav-link">
+        <span class="nav-dir">← Previous</span>
+        <span class="nav-title">Home</span>
+      </a>
+      <a href="../install/index.html" class="page-nav-link next">
+        <span class="nav-dir">Next →</span>
+        <span class="nav-title">Installation Guide</span>
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-logo" style="margin-bottom:.5rem;">
+          <span class="logo-dot"></span>
+          CobaltOS
+        </a>
+        <p>A free, fast, Chromebook-native Linux distribution.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS/releases" target="_blank" rel="noopener">Releases</a></li>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS/issues" target="_blank" rel="noopener">Report an Issue</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Docs</h4>
+        <ul>
+          <li><a href="../install/index.html">Install Guide</a></li>
+          <li><a href="index.html">Supported Devices</a></li>
+          <li><a href="https://docs.mrchromebox.tech/" target="_blank" rel="noopener">MrChromebox Docs ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 CobaltOS — GPL-3.0 License</p>
+      <p>Built with ❤️ for Chromebook users everywhere</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

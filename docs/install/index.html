@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation Guide — CobaltOS</title>
+  <meta name="description" content="Step-by-step guide to install CobaltOS on your Chromebook. Covers Developer Mode, firmware flashing with MrChromebox, and the full CobaltOS installer." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230047AB'/><text y='.9em' font-size='70' x='50%' text-anchor='middle' fill='white'>C</text></svg>" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../index.html" class="nav-logo">
+      <span class="logo-dot"></span>
+      CobaltOS
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../devices/index.html">Devices</a></li>
+      <li><a href="index.html" class="active">Install Guide</a></li>
+      <li><a href="https://github.com/0xnullsect0r/CobaltOS" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="index.html" class="nav-cta">Install Now</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== PAGE HERO ===== -->
+<div class="page-hero">
+  <div class="container">
+    <h1>🚀 Installation Guide</h1>
+    <p>
+      Follow these steps to replace ChromeOS with CobaltOS. The full process takes
+      <strong>30–60 minutes</strong>. Read each step carefully before proceeding.
+    </p>
+  </div>
+</div>
+
+<main class="section">
+  <div class="container">
+    <div class="install-layout">
+
+      <!-- ===== TABLE OF CONTENTS ===== -->
+      <aside>
+        <nav class="toc" aria-label="Table of contents">
+          <h4>On this page</h4>
+          <ul>
+            <li><a href="#prerequisites">Prerequisites</a></li>
+            <div class="toc-phase">Phase 1</div>
+            <li><a href="#step-1">Step 1 — Download ISO</a></li>
+            <li><a href="#step-2">Step 2 — Flash USB</a></li>
+            <div class="toc-phase">Phase 2</div>
+            <li><a href="#step-3">Step 3 — Recovery Mode</a></li>
+            <li><a href="#step-4">Step 4 — Developer Mode</a></li>
+            <div class="toc-phase">Phase 3</div>
+            <li><a href="#step-5-wp">Step 5 — Write Protect</a></li>
+            <div class="toc-phase">Phase 4</div>
+            <li><a href="#step-6">Step 6 — Boot ChromeOS</a></li>
+            <li><a href="#step-7">Step 7 — Open Terminal</a></li>
+            <li><a href="#step-8">Step 8 — Run Script</a></li>
+            <li><a href="#step-9">Step 9 — Backup Firmware</a></li>
+            <li><a href="#step-10">Step 10 — Flash UEFI</a></li>
+            <li><a href="#step-11">Step 11 — Reboot</a></li>
+            <div class="toc-phase">Phase 5</div>
+            <li><a href="#step-12">Step 12 — Boot from USB</a></li>
+            <li><a href="#step-13">Step 13 — Launch Installer</a></li>
+            <li><a href="#step-14">Step 14 — Follow Installer</a></li>
+            <li><a href="#step-15">Step 15 — First Boot</a></li>
+            <li><a href="#done">🎉 Done!</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <div>
+
+        <!-- ==============================
+             PREREQUISITES
+             ============================== -->
+        <section class="phase" id="prerequisites">
+          <div class="phase-header">
+            <div class="phase-num">⚠</div>
+            <div>
+              <h2>Before You Begin</h2>
+              <p class="phase-sub">Make sure you have everything you need before starting.</p>
+            </div>
+          </div>
+
+          <div class="callout callout-danger">
+            <span class="callout-icon">⛔</span>
+            <div class="callout-body">
+              <h4>This process will completely erase your Chromebook</h4>
+              <p>
+                All data, apps, and settings will be <strong>permanently deleted</strong>.
+                Back up anything important to Google Drive, a USB drive, or another device
+                <em>before you continue</em>.
+              </p>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom:1rem;font-size:1rem;">Prerequisites checklist</h3>
+          <ul class="checklist">
+            <li>
+              <span class="check-icon"></span>
+              <span>A <strong>supported Chromebook</strong> — <a href="../devices/index.html">check the Supported Devices page</a></span>
+            </li>
+            <li>
+              <span class="check-icon"></span>
+              <span>A <strong>USB flash drive, 8 GB or larger</strong> (it will be erased)</span>
+            </li>
+            <li>
+              <span class="check-icon"></span>
+              <span>A <strong>second computer</strong> (Windows, macOS, or Linux) to flash the USB</span>
+            </li>
+            <li>
+              <span class="check-icon"></span>
+              <span>A <strong>Phillips #0 or #00 screwdriver</strong> (for write-protect removal on most devices)</span>
+            </li>
+            <li>
+              <span class="check-icon"></span>
+              <span>A <strong>stable internet connection</strong> on the Chromebook</span>
+            </li>
+            <li>
+              <span class="check-icon"></span>
+              <span><strong>30–60 minutes</strong> of uninterrupted time</span>
+            </li>
+            <li>
+              <span class="check-icon"></span>
+              <span>Your Chromebook <strong>charger plugged in</strong> — keep it connected the entire time</span>
+            </li>
+          </ul>
+        </section>
+
+        <!-- ==============================
+             PHASE 1
+             ============================== -->
+        <section class="phase" id="phase-1">
+          <div class="phase-header">
+            <div class="phase-num">1</div>
+            <div>
+              <h2>Download CobaltOS &amp; Flash Your USB Drive</h2>
+              <p class="phase-sub">Get the installation image and write it to a USB drive.</p>
+            </div>
+          </div>
+
+          <!-- Step 1 -->
+          <div class="step" id="step-1">
+            <div class="step-header">
+              <div class="step-num">1</div>
+              <div>
+                <p class="step-title">Download the CobaltOS ISO</p>
+                <p class="step-desc">Get the latest release from GitHub.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <p>
+                Download the latest CobaltOS ISO from the
+                <a href="https://github.com/0xnullsect0r/CobaltOS/releases" target="_blank" rel="noopener">GitHub Releases page</a>.
+                Look for a file named something like <code>cobaltos-x.x.x-amd64.iso</code>.
+              </p>
+              <p>
+                After downloading, <strong>verify the SHA256 checksum</strong> to make sure the file
+                wasn't corrupted during download:
+              </p>
+              <div class="platform-tabs">
+                <div class="tab-buttons">
+                  <button class="tab-btn" data-tab="win">Windows</button>
+                  <button class="tab-btn" data-tab="mac">macOS</button>
+                  <button class="tab-btn" data-tab="linux">Linux</button>
+                </div>
+                <div class="tab-panel" data-tab="win">
+                  <p>Open <strong>PowerShell</strong> and run:</p>
+                  <div class="code-header">powershell <button class="copy-btn">Copy</button></div>
+                  <pre><code>Get-FileHash .\cobaltos-amd64.iso -Algorithm SHA256</code></pre>
+                  <p>Compare the output hash to the checksum listed on the Releases page.</p>
+                </div>
+                <div class="tab-panel" data-tab="mac">
+                  <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                  <pre><code>shasum -a 256 ~/Downloads/cobaltos-amd64.iso</code></pre>
+                </div>
+                <div class="tab-panel" data-tab="linux">
+                  <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                  <pre><code>sha256sum ~/Downloads/cobaltos-amd64.iso</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step" id="step-2">
+            <div class="step-header">
+              <div class="step-num">2</div>
+              <div>
+                <p class="step-title">Flash the ISO to your USB drive</p>
+                <p class="step-desc">Write the image using Rufus, balenaEtcher, or <code>dd</code>.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <div class="callout callout-warning">
+                <span class="callout-icon">⚠️</span>
+                <div class="callout-body">
+                  <h4>Do not open the ISO like a zip file</h4>
+                  <p>You must use a flashing tool. Simply copying files onto the USB will not work.</p>
+                </div>
+              </div>
+              <div class="platform-tabs">
+                <div class="tab-buttons">
+                  <button class="tab-btn" data-tab="rufus">Windows — Rufus</button>
+                  <button class="tab-btn" data-tab="etcher">macOS — balenaEtcher</button>
+                  <button class="tab-btn" data-tab="dd">Linux — Terminal</button>
+                </div>
+                <div class="tab-panel" data-tab="rufus">
+                  <ol>
+                    <li>Download <a href="https://rufus.ie" target="_blank" rel="noopener">Rufus</a> — it's free, portable, no install needed.</li>
+                    <li>Plug in your USB drive.</li>
+                    <li>Open Rufus. Under <strong>Device</strong>, confirm your USB drive is selected.</li>
+                    <li>Click <strong>SELECT</strong> and choose the CobaltOS <code>.iso</code> file.</li>
+                    <li>Set <strong>Partition scheme</strong> → <strong>GPT</strong>.</li>
+                    <li>Set <strong>Target system</strong> → <strong>UEFI (non CSM)</strong>.</li>
+                    <li>Click <strong>START</strong>.</li>
+                    <li>If asked about writing mode, choose <strong>Write in ISO Image mode</strong>.</li>
+                    <li>Click <strong>OK</strong> on the warning — this will erase the USB drive.</li>
+                    <li>Wait for it to finish, then click <strong>CLOSE</strong>.</li>
+                  </ol>
+                </div>
+                <div class="tab-panel" data-tab="etcher">
+                  <ol>
+                    <li>Download <a href="https://etcher.balena.io" target="_blank" rel="noopener">balenaEtcher</a>.</li>
+                    <li>Open balenaEtcher.</li>
+                    <li>Click <strong>Flash from file</strong> and select the CobaltOS <code>.iso</code>.</li>
+                    <li>Click <strong>Select target</strong> and choose your USB drive.</li>
+                    <li>Click <strong>Flash!</strong> and wait for it to complete.</li>
+                    <li>You may be asked for your password — this is normal for disk writes.</li>
+                  </ol>
+                </div>
+                <div class="tab-panel" data-tab="dd">
+                  <ol>
+                    <li>
+                      Find your USB drive device name:
+                      <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                      <pre><code>lsblk</code></pre>
+                      Look for a drive the size of your USB (e.g. <code>/dev/sdb</code>).
+                    </li>
+                    <li>
+                      Unmount it:
+                      <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                      <pre><code>sudo umount /dev/sdX*</code></pre>
+                    </li>
+                    <li>
+                      Flash it (replace <code>sdX</code> with your device):
+                      <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                      <pre><code>sudo dd if=~/Downloads/cobaltos-amd64.iso of=/dev/sdX bs=4M status=progress conv=fdatasync</code></pre>
+                    </li>
+                    <li>Wait for the command to return to the prompt, then run <code>sync</code> and safely remove the USB.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================
+             PHASE 2
+             ============================== -->
+        <section class="phase" id="phase-2">
+          <div class="phase-header">
+            <div class="phase-num">2</div>
+            <div>
+              <h2>Enable Developer Mode</h2>
+              <p class="phase-sub">Unlock low-level access — required before changing firmware.</p>
+            </div>
+          </div>
+
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <div class="callout-body">
+              <h4>This is normal and expected</h4>
+              <p>
+                Developer Mode is an official Google feature, not a hack.
+                It just unlocks access that Google hides by default. It will wipe local data on the device.
+              </p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step" id="step-3">
+            <div class="step-header">
+              <div class="step-num">3</div>
+              <div>
+                <p class="step-title">Enter Recovery Mode</p>
+                <p class="step-desc">Power off your Chromebook completely first.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <p>With your Chromebook <strong>powered off</strong>:</p>
+              <ol>
+                <li>Hold <kbd>Esc</kbd> + <kbd>Refresh ↻</kbd> + <kbd>Power</kbd> simultaneously.</li>
+                <li>Keep holding until you see a screen that says <em>"ChromeOS is missing or damaged"</em> — you are in Recovery Mode. ✅</li>
+              </ol>
+              <div class="callout callout-info">
+                <span class="callout-icon">📱</span>
+                <div class="callout-body">
+                  <h4>Tablet-form Chromebooks</h4>
+                  <p>Hold <kbd>Volume Up</kbd> + <kbd>Volume Down</kbd> + <kbd>Power</kbd> instead.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step" id="step-4">
+            <div class="step-header">
+              <div class="step-num">4</div>
+              <div>
+                <p class="step-title">Enable Developer Mode</p>
+                <p class="step-desc">Takes 5–10 minutes. The device will wipe itself.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>On the Recovery Screen, press <kbd>Ctrl</kbd> + <kbd>D</kbd>.</li>
+                <li>A screen will appear asking <em>"Turn OS verification OFF"</em>.</li>
+                <li>Press <kbd>Enter</kbd> to confirm (or press the physical button shown on newer devices).</li>
+                <li>The Chromebook will make a loud beep and begin transitioning to Developer Mode.</li>
+                <li>A progress bar will appear — this takes <strong>5–10 minutes</strong>.</li>
+                <li>The device will reboot automatically when done.</li>
+              </ol>
+              <div class="callout callout-warning">
+                <span class="callout-icon">⚠️</span>
+                <div class="callout-body">
+                  <h4>"OS verification is OFF" screen on every boot</h4>
+                  <p>
+                    After enabling Developer Mode, you will see this screen every time you boot.
+                    This is normal. Press <kbd>Ctrl</kbd> + <kbd>D</kbd> to continue booting quickly,
+                    or wait 30 seconds for it to continue automatically.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================
+             PHASE 3
+             ============================== -->
+        <section class="phase" id="phase-3">
+          <div class="phase-header">
+            <div class="phase-num">3</div>
+            <div>
+              <h2>Disable Firmware Write Protection</h2>
+              <p class="phase-sub">Required before flashing new firmware. Choose the method for your device.</p>
+            </div>
+          </div>
+
+          <p>
+            ChromeOS firmware is write-protected by hardware to prevent accidental or malicious modification.
+            You must disable this before you can flash new firmware.
+            Check the <a href="../devices/index.html">Supported Devices page</a> to see which method your device uses.
+          </p>
+
+          <div class="step" id="step-5-wp">
+            <div class="step-header">
+              <div class="step-num">5</div>
+              <div>
+                <p class="step-title">Remove Write Protection</p>
+                <p class="step-desc">Use Method A (WP screw) or Method B (battery disconnect) depending on your device.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <div class="platform-tabs">
+                <div class="tab-buttons">
+                  <button class="tab-btn" data-tab="wp-screw">Method A — WP Screw (most devices)</button>
+                  <button class="tab-btn" data-tab="wp-battery">Method B — Battery Disconnect</button>
+                </div>
+                <div class="tab-panel" data-tab="wp-screw">
+                  <ol>
+                    <li>Power off the Chromebook completely and unplug the charger.</li>
+                    <li>Flip the Chromebook over and remove the bottom cover screws (typically Phillips #0 or #00 — check under rubber feet for hidden screws).</li>
+                    <li>Carefully pry off the bottom cover with a spudger or guitar pick.</li>
+                    <li>
+                      Locate the write-protect screw on the motherboard. It is usually:
+                      <ul>
+                        <li>Near the SSD or RAM</li>
+                        <li>A different color (silver or gold) than surrounding screws</li>
+                        <li>Sometimes labeled <strong>"WP"</strong> on the board</li>
+                      </ul>
+                      Check <a href="https://docs.mrchromebox.tech" target="_blank" rel="noopener">docs.mrchromebox.tech</a> for your specific board's screw location.
+                    </li>
+                    <li><strong>Remove the WP screw</strong> and keep it somewhere safe.</li>
+                    <li>Reassemble the Chromebook (you can leave the WP screw out permanently — it's not needed for normal operation).</li>
+                  </ol>
+                </div>
+                <div class="tab-panel" data-tab="wp-battery">
+                  <p>Some newer Chromebooks with CR50/GSC security chips use battery-disconnect instead of a WP screw:</p>
+                  <ol>
+                    <li>Power off completely and unplug the charger.</li>
+                    <li>Remove the bottom cover (as above).</li>
+                    <li>Locate the battery connector on the motherboard.</li>
+                    <li>Carefully disconnect the battery cable from the board.</li>
+                    <li>Wait <strong>30 seconds</strong>.</li>
+                    <li>Reconnect the battery.</li>
+                    <li>Reassemble the Chromebook.</li>
+                  </ol>
+                </div>
+              </div>
+              <div class="callout callout-success">
+                <span class="callout-icon">✅</span>
+                <div class="callout-body">
+                  <h4>Write protection is now disabled</h4>
+                  <p>You will not need to do this again unless you want to restore the original firmware.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================
+             PHASE 4
+             ============================== -->
+        <section class="phase" id="phase-4">
+          <div class="phase-header">
+            <div class="phase-num">4</div>
+            <div>
+              <h2>Flash the UEFI Firmware</h2>
+              <p class="phase-sub">Replace the stock ChromeOS firmware with MrChromebox's UEFI Full ROM.</p>
+            </div>
+          </div>
+
+          <p>
+            You are replacing the stock ChromeOS firmware with a proper UEFI firmware using
+            <a href="https://mrchromebox.tech" target="_blank" rel="noopener">MrChromebox's open-source Firmware Utility Script</a>.
+            This is what allows CobaltOS (and any standard OS) to boot on your Chromebook.
+          </p>
+
+          <!-- Step 6 -->
+          <div class="step" id="step-6">
+            <div class="step-header">
+              <div class="step-num">6</div>
+              <div>
+                <p class="step-title">Boot into ChromeOS</p>
+                <p class="step-desc">You don't need to sign in — Guest mode works fine.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>Boot the Chromebook. You'll see the <em>"OS verification is OFF"</em> screen — press <kbd>Ctrl</kbd> + <kbd>D</kbd>.</li>
+                <li>Wait for ChromeOS to load to the login screen.</li>
+                <li>Connect to WiFi (required for the firmware script).</li>
+                <li>Click <strong>"Browse as Guest"</strong> — you do <strong>not</strong> need to sign into a Google account.</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="step" id="step-7">
+            <div class="step-header">
+              <div class="step-num">7</div>
+              <div>
+                <p class="step-title">Open a Terminal</p>
+                <p class="step-desc">Access the ChromeOS developer shell.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>Press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd> to open the ChromeOS terminal (crosh).</li>
+                <li>
+                  Type the following and press <kbd>Enter</kbd> to get a full Linux shell:
+                  <div class="code-header">crosh <button class="copy-btn">Copy</button></div>
+                  <pre><code>shell</code></pre>
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Step 8 -->
+          <div class="step" id="step-8">
+            <div class="step-header">
+              <div class="step-num">8</div>
+              <div>
+                <p class="step-title">Run the MrChromebox Firmware Utility Script</p>
+                <p class="step-desc">Downloads and launches the firmware tool automatically.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+              <pre><code>cd; curl -LO https://mrchromebox.tech/firmware-util.sh && sudo bash firmware-util.sh</code></pre>
+              <p>The script will download and launch automatically, showing a menu of options.</p>
+            </div>
+          </div>
+
+          <!-- Step 9 -->
+          <div class="step" id="step-9">
+            <div class="step-header">
+              <div class="step-num">9</div>
+              <div>
+                <p class="step-title">Back Up Your Stock Firmware</p>
+                <p class="step-desc">Strongly recommended — this is your safety net.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>In the firmware script menu, select <strong>"Backup Firmware"</strong> (if available for your device).</li>
+                <li>When prompted, save the backup to a USB drive.</li>
+              </ol>
+              <div class="callout callout-info">
+                <span class="callout-icon">💾</span>
+                <div class="callout-body">
+                  <h4>Keep this backup somewhere safe</h4>
+                  <p>
+                    If anything goes wrong and you ever want to return to ChromeOS, this backup is how you restore it.
+                    Without it, recovery is still possible but more involved.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 10 -->
+          <div class="step" id="step-10">
+            <div class="step-header">
+              <div class="step-num">10</div>
+              <div>
+                <p class="step-title">Install UEFI Full ROM Firmware</p>
+                <p class="step-desc">Takes about 2 minutes. Do not interrupt this step.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>In the script menu, select <strong>"Install/Update Full ROM Firmware (UEFI)"</strong>.</li>
+                <li>Type <code>y</code> and press <kbd>Enter</kbd> when asked to confirm.</li>
+                <li>The script will download and flash the firmware — this takes about 2 minutes.</li>
+                <li>When done, the script will tell you to reboot.</li>
+              </ol>
+              <div class="callout callout-danger">
+                <span class="callout-icon">⛔</span>
+                <div class="callout-body">
+                  <h4>Do not close the lid or unplug power during flashing</h4>
+                  <p>
+                    If the process is interrupted, the device may not boot.
+                    Keep your Chromebook plugged into power the entire time.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 11 -->
+          <div class="step" id="step-11">
+            <div class="step-header">
+              <div class="step-num">11</div>
+              <div>
+                <p class="step-title">Reboot into UEFI</p>
+                <p class="step-desc">Confirm the new firmware is working.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>Remove any USB drives currently plugged in.</li>
+                <li>
+                  Type <code>reboot</code> in the terminal, or close and reopen the lid:
+                  <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                  <pre><code>reboot</code></pre>
+                </li>
+                <li>
+                  The Chromebook will reboot. You will <strong>not</strong> see the "OS verification" screen anymore.
+                  Instead, you will see a standard UEFI boot screen (possibly a brief blank screen or coreboot splash).
+                </li>
+              </ol>
+              <div class="callout callout-success">
+                <span class="callout-icon">✅</span>
+                <div class="callout-body">
+                  <h4>UEFI firmware is installed!</h4>
+                  <p>The absence of the ChromeOS "OS verification" screen confirms the new firmware is working correctly.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================
+             PHASE 5
+             ============================== -->
+        <section class="phase" id="phase-5">
+          <div class="phase-header">
+            <div class="phase-num">5</div>
+            <div>
+              <h2>Install CobaltOS</h2>
+              <p class="phase-sub">Boot from your USB drive and run the installer.</p>
+            </div>
+          </div>
+
+          <!-- Step 12 -->
+          <div class="step" id="step-12">
+            <div class="step-header">
+              <div class="step-num">12</div>
+              <div>
+                <p class="step-title">Boot from the USB Drive</p>
+                <p class="step-desc">Insert the CobaltOS USB you flashed in Phase 1.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>Insert the CobaltOS USB drive into your Chromebook.</li>
+                <li>Power on the Chromebook.</li>
+                <li>Immediately press <kbd>Esc</kbd> (or <kbd>F2</kbd> / <kbd>F10</kbd> — varies by device) to open the UEFI boot menu.</li>
+                <li>You should see your USB drive listed — select it and press <kbd>Enter</kbd>.</li>
+                <li>CobaltOS will boot to the live session. You can try it out before installing.</li>
+              </ol>
+              <div class="callout callout-info">
+                <span class="callout-icon">💡</span>
+                <div class="callout-body">
+                  <h4>If you don't see the boot menu</h4>
+                  <p>
+                    Try pressing <kbd>Esc</kbd> repeatedly right as the device powers on.
+                    If you see a black screen, wait 10–15 seconds — some devices take a moment to POST.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 13 -->
+          <div class="step" id="step-13">
+            <div class="step-header">
+              <div class="step-num">13</div>
+              <div>
+                <p class="step-title">Launch the CobaltOS Installer</p>
+                <p class="step-desc">Find it on the desktop or in the app menu.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>Once the live session loads, you will see the CobaltOS COSMIC desktop.</li>
+                <li>Double-click the <strong>"Install CobaltOS"</strong> icon on the desktop, or find it in the application menu.</li>
+                <li>The <code>cobalt-installer</code> will launch.</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Step 14 -->
+          <div class="step" id="step-14">
+            <div class="step-header">
+              <div class="step-num">14</div>
+              <div>
+                <p class="step-title">Follow the Installer</p>
+                <p class="step-desc">The installer walks you through 8 simple steps.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>
+                  <strong>Welcome</strong> — Select your language and keyboard layout.
+                </li>
+                <li>
+                  <strong>Device Check</strong> — The installer automatically detects your Chromebook model
+                  and confirms hardware compatibility. Any issues are flagged here.
+                </li>
+                <li>
+                  <strong>Disk Setup</strong> — Choose to erase the entire disk and install CobaltOS
+                  (recommended for most users), or use manual partitioning for advanced users.
+                  <br>Recommended partition layout: <strong>512 MB ESP (FAT32)</strong> + remaining space as <strong>root (ext4)</strong>.
+                </li>
+                <li>
+                  <strong>Location</strong> — Select your timezone.
+                </li>
+                <li>
+                  <strong>Account</strong> — Create your username and password.
+                </li>
+                <li>
+                  <strong>Ready to Install</strong> — Review your choices and click <strong>Install</strong>.
+                </li>
+                <li>
+                  <strong>Installing</strong> — Sit back! Installation takes about <strong>5–10 minutes</strong>.
+                </li>
+                <li>
+                  <strong>Done</strong> — Click <strong>"Restart Now"</strong> and remove the USB drive when prompted.
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Step 15 -->
+          <div class="step" id="step-15">
+            <div class="step-header">
+              <div class="step-num">15</div>
+              <div>
+                <p class="step-title">First Boot</p>
+                <p class="step-desc">CobaltOS configures your hardware automatically on first login.</p>
+              </div>
+            </div>
+            <div class="step-body">
+              <ol>
+                <li>The Chromebook will reboot directly into CobaltOS.</li>
+                <li>Log in with the username and password you created.</li>
+                <li>On first login, the <code>cobalt-welcome</code> app will launch automatically.</li>
+                <li>It will guide you through final setup: appearance, software recommendations, and account options.</li>
+                <li>
+                  Your Chromebook keyboard's top row and Search key will be automatically remapped
+                  by <code>cobalt-hardware-probe</code> — no manual configuration needed.
+                </li>
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================
+             DONE!
+             ============================== -->
+        <section class="phase" id="done">
+          <div class="callout callout-success" style="padding:1.8rem;border-radius:var(--radius-lg);">
+            <span class="callout-icon" style="font-size:2rem;">🎉</span>
+            <div class="callout-body">
+              <h4 style="font-size:1.2rem;">Welcome to CobaltOS!</h4>
+              <p>
+                Your Chromebook is now running a full, free, fast Linux desktop.
+                Explore the COSMIC desktop, install apps from the App Center,
+                and enjoy your device — no Google account required.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================
+             TROUBLESHOOTING
+             ============================== -->
+        <section class="phase" id="troubleshooting">
+          <div class="phase-header">
+            <div class="phase-num">?</div>
+            <div>
+              <h2>Troubleshooting</h2>
+              <p class="phase-sub">Common issues and how to fix them.</p>
+            </div>
+          </div>
+
+          <ul class="faq-list">
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "I see a black screen after booting the USB"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Wait 15 seconds. If nothing happens, try pressing <kbd>Esc</kbd> or <kbd>F2</kbd> at startup
+                  to access the UEFI boot menu and manually select the USB drive.
+                  Make sure the USB was flashed correctly using <strong>GPT</strong> partition scheme and <strong>UEFI</strong> mode.
+                </p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "The firmware script says write protection is still enabled"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Your write-protect screw may not have been fully removed, or your device uses the battery-disconnect method.
+                  Re-check <a href="#phase-3">Phase 3</a>. Ensure the bottom cover is fully
+                  reassembled before trying again (the WP screw engages a contact on the board, so the cover needs to be on).
+                </p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "My Chromebook keyboard doesn't work after installing"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  This is rare. Boot into CobaltOS and open a terminal via the on-screen keyboard (touch or mouse). Run:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>sudo systemctl restart cobalt-hardware-probe</code></pre>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "WiFi doesn't work"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Some Chromebook WiFi chips require non-free firmware. Connect via USB Ethernet or tethering, then run:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>sudo apt install firmware-iwlwifi firmware-atheros firmware-misc-nonfree</code></pre>
+                <p>Then reboot.</p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "Audio doesn't work"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Chromebook audio uses complex DSP routing. Run the hardware probe fix in a terminal:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>cobalt-hardware-probe --fix-audio</code></pre>
+                <p>
+                  If that doesn't help, check the
+                  <a href="https://github.com/0xnullsect0r/CobaltOS/issues" target="_blank" rel="noopener">GitHub Issues page</a>
+                  for your board name.
+                </p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "The installer can't find my disk"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  Some Chromebooks with NVMe drives need the <code>nvme</code> kernel module loaded manually.
+                  In the live session, open a terminal and run:
+                </p>
+                <div class="code-header">bash <button class="copy-btn">Copy</button></div>
+                <pre><code>sudo modprobe nvme</code></pre>
+                <p>Then relaunch the installer.</p>
+              </div>
+            </li>
+
+            <li class="faq-item">
+              <button class="faq-question">
+                "I want to go back to ChromeOS"
+                <span class="faq-arrow">▼</span>
+              </button>
+              <div class="faq-answer">
+                <p>
+                  If you saved a firmware backup in Step 9, you can restore it using the MrChromebox script.
+                  Visit <a href="https://docs.mrchromebox.tech" target="_blank" rel="noopener">docs.mrchromebox.tech</a>
+                  for full recovery instructions.
+                </p>
+                <p>
+                  If you did not back up, use the
+                  <a href="https://support.google.com/chromebook/answer/1080595" target="_blank" rel="noopener">Chromebook Recovery Utility</a>
+                  from another computer to restore stock firmware.
+                </p>
+              </div>
+            </li>
+
+          </ul>
+        </section>
+
+        <!-- Page navigation -->
+        <div class="page-nav">
+          <a href="../devices/index.html" class="page-nav-link">
+            <span class="nav-dir">← Previous</span>
+            <span class="nav-title">Supported Devices</span>
+          </a>
+          <a href="https://github.com/0xnullsect0r/CobaltOS" class="page-nav-link next" target="_blank" rel="noopener">
+            <span class="nav-dir">Also see →</span>
+            <span class="nav-title">GitHub Repository</span>
+          </a>
+        </div>
+
+      </div><!-- /main content -->
+    </div><!-- /install-layout -->
+  </div><!-- /container -->
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-logo" style="margin-bottom:.5rem;">
+          <span class="logo-dot"></span>
+          CobaltOS
+        </a>
+        <p>A free, fast, Chromebook-native Linux distribution.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS/releases" target="_blank" rel="noopener">Releases</a></li>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS/issues" target="_blank" rel="noopener">Report an Issue</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>References</h4>
+        <ul>
+          <li><a href="https://docs.mrchromebox.tech/" target="_blank" rel="noopener">MrChromebox Docs ↗</a></li>
+          <li><a href="https://docs.mrchromebox.tech/docs/supported-devices.html" target="_blank" rel="noopener">Supported Devices ↗</a></li>
+          <li><a href="https://rufus.ie" target="_blank" rel="noopener">Rufus ↗</a></li>
+          <li><a href="https://etcher.balena.io" target="_blank" rel="noopener">balenaEtcher ↗</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 CobaltOS — GPL-3.0 License</p>
+      <p>Built with ❤️ for Chromebook users everywhere</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

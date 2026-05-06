@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CobaltOS — A faster, freer Linux for your Chromebook</title>
+  <meta name="description" content="CobaltOS is a lightweight, user-friendly Debian-based Linux distro designed for Chromebooks. Fast boot, COSMIC desktop, Chromebook-native hardware support." />
+  <meta property="og:title" content="CobaltOS" />
+  <meta property="og:description" content="A faster, freer Linux for your Chromebook." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%230047AB'/><text y='.9em' font-size='70' x='50%' text-anchor='middle' fill='white'>C</text></svg>" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="nav" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-dot"></span>
+      CobaltOS
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="devices/index.html">Devices</a></li>
+      <li><a href="install/index.html">Install Guide</a></li>
+      <li><a href="https://github.com/0xnullsect0r/CobaltOS" target="_blank" rel="noopener">GitHub</a></li>
+      <li><a href="install/index.html" class="nav-cta">Install Now</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" aria-labelledby="hero-heading">
+  <div class="container">
+    <div class="hero-badge">🚀 Open Source · Debian-based · Chromebook-native</div>
+    <h1 id="hero-heading">A faster, freer Linux<br><span>for your Chromebook.</span></h1>
+    <p class="hero-sub">
+      CobaltOS replaces ChromeOS with a full, privacy-respecting Linux desktop.
+      COSMIC DE, Rust-powered tools, and first-class Chromebook hardware support — out of the box.
+    </p>
+    <div class="hero-actions">
+      <a href="install/index.html" class="btn btn-primary btn-lg">⬇ Install CobaltOS</a>
+      <a href="devices/index.html" class="btn btn-outline btn-lg">🔍 Check Your Device</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="val">&lt; 10s</span>
+        <span class="lbl">Boot time</span>
+      </div>
+      <div class="hero-stat">
+        <span class="val">&lt; 600 MB</span>
+        <span class="lbl">Idle RAM</span>
+      </div>
+      <div class="hero-stat">
+        <span class="val">Debian</span>
+        <span class="lbl">Stable base</span>
+      </div>
+      <div class="hero-stat">
+        <span class="val">Rust</span>
+        <span class="lbl">Core tooling</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="section" aria-labelledby="features-heading">
+  <div class="container">
+    <div class="section-heading">
+      <span class="overline">Why CobaltOS</span>
+      <h2 id="features-heading">Everything your Chromebook deserves</h2>
+      <p>Built for the hardware you already own, without the Google dependency.</p>
+    </div>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Blazing-fast boot</h3>
+        <p>
+          Desktop in under 10 seconds on eMMC thanks to <code>systemd-boot</code>,
+          <code>zram-generator</code>, and a hand-tuned Debian base — no bloat.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <h3>COSMIC Desktop</h3>
+        <p>
+          The brand-new Wayland-native desktop by System76. Built entirely in Rust
+          with the <code>iced</code> framework — modern, beautiful, and snappy.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">💻</div>
+        <h3>Chromebook-native hardware</h3>
+        <p>
+          Keyboard remapping, audio UCM profiles, touchpad gestures, and HiDPI scaling
+          configured automatically for your exact Chromebook model on first boot.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🦀</div>
+        <h3>Rust-powered tooling</h3>
+        <p>
+          <code>ripgrep</code>, <code>fd</code>, <code>eza</code>, <code>bat</code>,
+          <code>zoxide</code>, <code>starship</code> and more — pre-installed and
+          aliased for a modern shell experience.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🛠️</div>
+        <h3>Friendly installer</h3>
+        <p>
+          <code>cobalt-installer</code> guides you step-by-step with automatic
+          hardware detection, UEFI firmware check, and auto-partitioning.
+          GUI and TUI modes available.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Privacy-respecting</h3>
+        <p>
+          No Google account. No telemetry. No cloud lock-in.
+          Debian Stable base with Flatpak for sandboxed apps from Flathub.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3>Huge software library</h3>
+        <p>
+          Full <code>apt</code> package ecosystem plus Flatpak with Flathub enabled
+          by default. Install anything from VS Code to Blender in seconds.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3>Easy updates</h3>
+        <p>
+          <code>cobalt-update</code> handles <code>apt</code> and Flatpak updates
+          with GUI tray notifications and safe rollback on failure.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🐧</div>
+        <h3>Full Linux compatibility</h3>
+        <p>
+          Mainline LTS kernel with Chromebook-specific patches. Every standard Linux
+          application, developer tool, and game works as expected.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT YOU NEED ===== -->
+<section class="section" style="padding-top: 0;">
+  <div class="container">
+    <div class="device-cta">
+      <h2>🔍 Is my Chromebook supported?</h2>
+      <p>
+        CobaltOS supports all Chromebooks compatible with MrChromebox's UEFI Full ROM firmware —
+        covering most Chromebooks from 2012 onwards across Intel and AMD platforms.
+      </p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="devices/index.html" class="btn btn-primary">View Supported Devices</a>
+        <a href="https://docs.mrchromebox.tech/docs/supported-devices.html" class="btn btn-outline" target="_blank" rel="noopener">MrChromebox Device List ↗</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section" style="padding-top: 0;" aria-labelledby="how-heading">
+  <div class="container">
+    <div class="section-heading">
+      <span class="overline">How it works</span>
+      <h2 id="how-heading">From Chromebook to Linux in 5 phases</h2>
+      <p>The full process takes 30–60 minutes. Follow the step-by-step guide.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap:1.2rem; margin-bottom:2.5rem;">
+      <div class="feature-card" style="text-align:center; padding:1.4rem 1rem;">
+        <div class="feature-icon" style="margin:0 auto 0.8rem;">1</div>
+        <h3 style="font-size:.95rem;">Download &amp; Flash</h3>
+        <p style="font-size:.85rem;">Get the ISO and write it to a USB drive with Rufus, Etcher, or <code>dd</code>.</p>
+      </div>
+      <div class="feature-card" style="text-align:center; padding:1.4rem 1rem;">
+        <div class="feature-icon" style="margin:0 auto 0.8rem;">2</div>
+        <h3 style="font-size:.95rem;">Developer Mode</h3>
+        <p style="font-size:.85rem;">Enable ChromeOS Developer Mode to unlock firmware access.</p>
+      </div>
+      <div class="feature-card" style="text-align:center; padding:1.4rem 1rem;">
+        <div class="feature-icon" style="margin:0 auto 0.8rem;">3</div>
+        <h3 style="font-size:.95rem;">Remove Write Protect</h3>
+        <p style="font-size:.85rem;">Remove the WP screw or disconnect the battery to allow firmware flashing.</p>
+      </div>
+      <div class="feature-card" style="text-align:center; padding:1.4rem 1rem;">
+        <div class="feature-icon" style="margin:0 auto 0.8rem;">4</div>
+        <h3 style="font-size:.95rem;">Flash UEFI Firmware</h3>
+        <p style="font-size:.85rem;">Run MrChromebox's script to replace the factory firmware with UEFI.</p>
+      </div>
+      <div class="feature-card" style="text-align:center; padding:1.4rem 1rem;">
+        <div class="feature-icon" style="margin:0 auto 0.8rem;">5</div>
+        <h3 style="font-size:.95rem;">Install CobaltOS</h3>
+        <p style="font-size:.85rem;">Boot from USB and follow the friendly guided installer.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="install/index.html" class="btn btn-primary btn-lg">Read the Full Install Guide →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TOOLS TABLE ===== -->
+<section class="section" style="padding-top: 0;" aria-labelledby="tools-heading">
+  <div class="container">
+    <div class="section-heading">
+      <span class="overline">Shell &amp; CLI</span>
+      <h2 id="tools-heading">Modern tools, pre-installed</h2>
+      <p>Every common CLI tool replaced with a faster Rust alternative — aliased so nothing breaks.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Traditional</th>
+            <th>CobaltOS Replacement</th>
+            <th>Why it's better</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>grep</code></td><td><code>ripgrep</code> (<code>rg</code>)</td><td>10–100× faster, respects .gitignore</td></tr>
+          <tr><td><code>find</code></td><td><code>fd</code></td><td>Simpler syntax, faster, colorized output</td></tr>
+          <tr><td><code>ls</code></td><td><code>eza</code></td><td>Icons, colors, git status in file listings</td></tr>
+          <tr><td><code>cat</code></td><td><code>bat</code></td><td>Syntax highlighting, line numbers, git diffs</td></tr>
+          <tr><td><code>cd</code></td><td><code>zoxide</code></td><td>Remembers your most-visited directories</td></tr>
+          <tr><td><code>du</code></td><td><code>dust</code></td><td>Instant visual disk usage tree</td></tr>
+          <tr><td><code>top</code> / <code>htop</code></td><td><code>bottom</code> (<code>btm</code>)</td><td>Beautiful TUI, CPU, memory, network graphs</td></tr>
+          <tr><td><code>ps</code></td><td><code>procs</code></td><td>Colorized, human-readable process list</td></tr>
+          <tr><td><code>sed</code></td><td><code>sd</code></td><td>Intuitive regex find &amp; replace</td></tr>
+          <tr><td><code>ping</code></td><td><code>gping</code></td><td>Real-time latency graph in the terminal</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="margin-bottom:.5rem;">
+          <span class="logo-dot"></span>
+          CobaltOS
+        </a>
+        <p>A free, fast, Chromebook-native Linux distribution. No Google required.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS/releases" target="_blank" rel="noopener">Releases</a></li>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS/issues" target="_blank" rel="noopener">Report an Issue</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Docs</h4>
+        <ul>
+          <li><a href="install/index.html">Install Guide</a></li>
+          <li><a href="devices/index.html">Supported Devices</a></li>
+          <li><a href="https://docs.mrchromebox.tech/" target="_blank" rel="noopener">MrChromebox Docs ↗</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="https://github.com/0xnullsect0r/CobaltOS/blob/main/LICENSE" target="_blank" rel="noopener">GPL-3.0 License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 CobaltOS — Released under the <a href="https://github.com/0xnullsect0r/CobaltOS/blob/main/LICENSE">GPL-3.0 License</a></p>
+      <p>Built with ❤️ for Chromebook users everywhere</p>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
