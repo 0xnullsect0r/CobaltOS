@@ -1,0 +1,13 @@
+[Unit]
+Description=CobaltOS Update Manager Timer
+Documentation=https://github.com/0xnullsect0r/CobaltOS
+
+[Timer]
+# Check for updates every 6 hours, starting 5 minutes after boot
+OnBootSec=5min
+OnUnitActiveSec=6h
+Unit=cobalt-update.service
+Persistent=true
+
+[Install]
+WantedBy=timers.target

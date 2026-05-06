@@ -1,0 +1,16 @@
+[Unit]
+Description=CobaltOS Flatpak Queue Installer
+Documentation=https://github.com/0xnullsect0r/CobaltOS
+After=network-online.target graphical.target
+Wants=network-online.target
+ConditionPathExists=%h/.config/cobaltos/flatpak-queue.txt
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/cobalt-flatpak-install
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cobalt-flatpak-install
+
+[Install]
+WantedBy=default.target

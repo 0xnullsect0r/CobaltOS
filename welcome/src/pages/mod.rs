@@ -2,6 +2,8 @@
 pub enum WelcomePage {
     Welcome,
     Appearance,
+    Locale,
+    Browser,
     Apps,
     Finish,
 }

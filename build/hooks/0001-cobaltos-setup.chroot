@@ -75,6 +75,7 @@ systemctl enable wireplumber      2>/dev/null || true
 systemctl enable keyd             2>/dev/null || true
 systemctl enable cobalt-hardware-probe 2>/dev/null || true
 systemctl enable cobalt-update    2>/dev/null || true
+systemctl enable cobalt-update.timer 2>/dev/null || true
 
 # ── Hostname ──────────────────────────────────────────────────────────────────
 echo "cobaltos" > /etc/hostname

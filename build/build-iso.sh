@@ -99,6 +99,7 @@ cp "$REPO_ROOT/config/plymouth/cobalt/cobalt.script"   "$PLYMOUTH_DST/"
 SYSTEMD_DST="config/includes.chroot/usr/lib/systemd/system"
 mkdir -p "$SYSTEMD_DST"
 cp "$REPO_ROOT/config/systemd/"*.service "$SYSTEMD_DST/"
+cp "$REPO_ROOT/config/systemd/"*.timer   "$SYSTEMD_DST/" 2>/dev/null || true
 
 # Enable services via preset
 PRESET_DST="config/includes.chroot/usr/lib/systemd/system-preset"
@@ -106,6 +107,7 @@ mkdir -p "$PRESET_DST"
 cat > "$PRESET_DST/80-cobaltos.preset" <<'EOF'
 enable cobalt-hardware-probe.service
 enable cobalt-update.service
+enable cobalt-update.timer
 EOF
 
 # Install UCM2 audio profiles
@@ -131,6 +133,12 @@ cp "$REPO_ROOT/config/zram/zram-generator.conf" "$ZRAM_DST/cobaltos.conf" 2>/dev
 APPS_DST="config/includes.chroot/usr/share/applications"
 mkdir -p "$APPS_DST"
 cp "$REPO_ROOT/config/applications/"*.desktop "$APPS_DST/" 2>/dev/null || true
+
+# Install helper scripts
+SCRIPTS_DST="config/includes.chroot/usr/local/bin"
+mkdir -p "$SCRIPTS_DST"
+cp "$REPO_ROOT/build/scripts/"* "$SCRIPTS_DST/" 2>/dev/null || true
+chmod +x "$SCRIPTS_DST"/cobalt-* 2>/dev/null || true
 
 # --- Build ---
 info "Running lb build (this takes 15–30 minutes)..."

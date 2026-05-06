@@ -34,6 +34,7 @@ CobaltOS is a lightweight, user-friendly, Debian-based Linux distribution design
 | v0.5.0 | ✅ Released | Polish — 60+ board database, password wiring, complete zshrc, package list |
 | v1.0.0 | ✅ Released | First stable release — all components complete and integrated |
 | v1.1.0 | 🚀 Released | Touchpad config, btrfs filesystem option, smart update daemon |
+| v1.2.0 | 🚀 Released | Welcome wizard (locale + browser + app install), OOBE expansion (timezone + privacy + account), systemd update timer |
 
 ---
 

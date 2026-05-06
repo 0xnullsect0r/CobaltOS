@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# cobalt-flatpak-install — installs apps queued by cobalt-welcome
+# Queue file: ~/.config/cobaltos/flatpak-queue.txt (one flatpak ID per line)
+set -euo pipefail
+
+QUEUE_FILE="${HOME:-/root}/.config/cobaltos/flatpak-queue.txt"
+
+if [[ ! -f "$QUEUE_FILE" ]]; then
+    echo "No flatpak queue found at $QUEUE_FILE, nothing to do."
+    exit 0
+fi
+
+# Ensure Flathub remote is added
+flatpak remote-add --user --if-not-exists flathub \
+    https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+
+installed=0
+failed=0
+
+while IFS= read -r app_id || [[ -n "$app_id" ]]; do
+    # Skip blank lines and comments
+    [[ -z "$app_id" || "$app_id" == \#* ]] && continue
+
+    echo "Installing $app_id ..."
+    if flatpak install --user --noninteractive flathub "$app_id" 2>&1; then
+        echo "  ✓ $app_id installed"
+        (( installed++ )) || true
+    else
+        echo "  ✗ $app_id failed (skipping)"
+        (( failed++ )) || true
+    fi
+done < "$QUEUE_FILE"
+
+echo "Done: $installed installed, $failed failed."
+
+# Remove queue file so this service doesn't re-run
+rm -f "$QUEUE_FILE"
