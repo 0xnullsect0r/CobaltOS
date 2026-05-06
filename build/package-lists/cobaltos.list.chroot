@@ -24,7 +24,7 @@ firmware-iwlwifi
 firmware-atheros
 firmware-realtek
 firmware-misc-nonfree
-sof-firmware
+firmware-sof-signed
 
 # Filesystem tools
 e2fsprogs
@@ -80,7 +80,7 @@ gnome-software-plugin-flatpak
 # Browser
 firefox-esr
 
-# Shell and Rust CLI tools
+# Shell and CLI tools (bookworm)
 zsh
 zsh-autosuggestions
 zsh-syntax-highlighting
@@ -89,12 +89,7 @@ fd-find
 eza
 bat
 zoxide
-dust
-bottom
-procs
-sd
 hexyl
-gping
 
 # COSMIC Desktop
 cosmic-session
@@ -128,4 +123,3 @@ rsync
 openssh-client
 man-db
 debootstrap
-sgdisk
