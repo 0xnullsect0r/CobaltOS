@@ -4,30 +4,94 @@
 
 set -e
 
-# Set default shell to zsh for new users
+echo "=== CobaltOS chroot setup hook ==="
+
+# ── Default shell: zsh ────────────────────────────────────────────────────────
 chsh -s /bin/zsh root 2>/dev/null || true
 
-# Install default zshrc and starship config
 mkdir -p /etc/skel
-cp /etc/cobaltos/zsh/.zshrc /etc/skel/.zshrc 2>/dev/null || true
+cp /etc/cobaltos/zsh/.zshrc           /etc/skel/.zshrc           2>/dev/null || true
 mkdir -p /etc/skel/.config
-cp /etc/cobaltos/zsh/starship.toml /etc/skel/.config/starship.toml 2>/dev/null || true
+cp /etc/cobaltos/zsh/starship.toml    /etc/skel/.config/starship.toml 2>/dev/null || true
 
-# Enable Flathub remote for all users
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+# ── Flathub ───────────────────────────────────────────────────────────────────
+flatpak remote-add --if-not-exists --system flathub \
+    https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
 
-# Enable key systemd services
-systemctl enable NetworkManager 2>/dev/null || true
-systemctl enable bluetooth 2>/dev/null || true
-systemctl enable pipewire 2>/dev/null || true
-systemctl enable pipewire-pulse 2>/dev/null || true
+# ── zram swap ─────────────────────────────────────────────────────────────────
+if [ -d /etc/cobaltos/zram ]; then
+    mkdir -p /etc/systemd/zram-generator.conf.d
+    cp /etc/cobaltos/zram/zram-generator.conf \
+       /etc/systemd/zram-generator.conf.d/cobaltos.conf 2>/dev/null || true
+fi
 
-# Install starship prompt if not in package list
+# ── COSMIC theme ──────────────────────────────────────────────────────────────
+if [ -d /etc/cobaltos/cosmic ]; then
+    mkdir -p /etc/cosmic
+    cp -r /etc/cobaltos/cosmic/. /etc/cosmic/ 2>/dev/null || true
+fi
+
+# ── keyd keyboard default config ─────────────────────────────────────────────
+if [ -d /etc/cobaltos/keyd ]; then
+    mkdir -p /etc/keyd
+    # Install the generic chromebook config as a fallback
+    cp /etc/cobaltos/keyd/chromebook.conf /etc/keyd/default.conf 2>/dev/null || true
+fi
+
+# ── Plymouth theme ────────────────────────────────────────────────────────────
+if [ -d /usr/share/plymouth/themes/cobalt ]; then
+    update-alternatives --install \
+        /usr/share/plymouth/themes/default.plymouth \
+        default.plymouth \
+        /usr/share/plymouth/themes/cobalt/cobalt.plymouth 100 2>/dev/null || true
+    plymouth-set-default-theme cobalt 2>/dev/null || true
+fi
+
+# ── Live session installer autostart ─────────────────────────────────────────
+mkdir -p /usr/local/lib/cobalt
+if [ -f /etc/cobaltos/live/autostart-installer.sh ]; then
+    cp /etc/cobaltos/live/autostart-installer.sh /usr/local/lib/cobalt/
+    chmod +x /usr/local/lib/cobalt/autostart-installer.sh
+fi
+if [ -f /etc/cobaltos/live/cobalt-installer-live.desktop ]; then
+    mkdir -p /etc/xdg/autostart
+    cp /etc/cobaltos/live/cobalt-installer-live.desktop /etc/xdg/autostart/
+fi
+# Live session marker file
+touch /run/cobalt-live-session 2>/dev/null || true
+
+# ── Desktop files ─────────────────────────────────────────────────────────────
+if [ -d /etc/cobaltos/applications ]; then
+    mkdir -p /usr/share/applications
+    cp /etc/cobaltos/applications/*.desktop /usr/share/applications/ 2>/dev/null || true
+fi
+
+# ── Systemd services ──────────────────────────────────────────────────────────
+systemctl enable NetworkManager   2>/dev/null || true
+systemctl enable bluetooth        2>/dev/null || true
+systemctl enable pipewire         2>/dev/null || true
+systemctl enable pipewire-pulse   2>/dev/null || true
+systemctl enable wireplumber      2>/dev/null || true
+systemctl enable keyd             2>/dev/null || true
+systemctl enable cobalt-hardware-probe 2>/dev/null || true
+systemctl enable cobalt-update    2>/dev/null || true
+
+# ── Hostname ──────────────────────────────────────────────────────────────────
+echo "cobaltos" > /etc/hostname
+cat > /etc/hosts <<'EOF'
+127.0.0.1   localhost
+127.0.1.1   cobaltos
+::1         localhost ip6-localhost ip6-loopback
+EOF
+
+# ── Starship prompt (if not in package list) ─────────────────────────────────
 if ! command -v starship >/dev/null 2>&1; then
     curl -sS https://starship.rs/install.sh | sh -s -- --yes 2>/dev/null || true
 fi
 
-# Set hostname
-echo "cobaltos" > /etc/hostname
+# ── Locale defaults ───────────────────────────────────────────────────────────
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+locale-gen 2>/dev/null || true
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
-echo "CobaltOS chroot hook complete"
+echo "=== CobaltOS chroot setup hook complete ==="

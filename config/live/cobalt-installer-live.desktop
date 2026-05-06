@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=CobaltOS Installer (Live)
+Comment=Automatically launch installer in live session
+Exec=/usr/local/lib/cobalt/autostart-installer.sh
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=3
+OnlyShowIn=COSMIC;GNOME;

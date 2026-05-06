@@ -9,11 +9,13 @@ use tracing::{info, warn};
 use crate::dmi::Board;
 
 const KEYD_CONFIG_DIR: &str = "/etc/keyd";
-const KEYD_CONFIG_FILE: &str = "/etc/keyd/chromebook.conf";
+const KEYD_CONFIG_FILE: &str = "/etc/keyd/default.conf";
+
+/// Board-specific configs are installed to this directory by the live-build hook.
+const COBALT_KEYD_BOARDS_DIR: &str = "/etc/cobaltos/keyd/boards";
 
 /// Base keyd config applied to all Chromebook boards.
-const BASE_CONFIG: &str = r#"
-[ids]
+const BASE_CONFIG: &str = r#"[ids]
 *
 
 [main]
@@ -21,9 +23,7 @@ const BASE_CONFIG: &str = r#"
 capslock = leftmeta
 search = leftmeta
 
-# Top-row function keys — map to F1-F10 when Fn is held,
-# or to their ChromeOS actions by default via the modifier key.
-# Individual boards may override these.
+# Top-row: ChromeOS media/action keys by default
 f1 = back
 f2 = forward
 f3 = refresh
@@ -36,7 +36,7 @@ f9 = volumedown
 f10 = volumeup
 
 [meta]
-# When Search (now Meta) is held, restore F-key behavior
+# Hold Search (Super) + top-row = standard F-keys
 f1 = f1
 f2 = f2
 f3 = f3
@@ -53,32 +53,48 @@ f10 = f10
 pub async fn apply_remapping(board: &Board) -> Result<()> {
     info!("Applying keyboard remapping for board: {}", board.name);
 
-    // Ensure keyd config directory exists
     std::fs::create_dir_all(KEYD_CONFIG_DIR)?;
 
-    // Start with the base config and apply any board-specific overrides
-    let config = board_config(board);
-    std::fs::write(KEYD_CONFIG_FILE, config)?;
+    let config = load_board_config(board);
+    std::fs::write(KEYD_CONFIG_FILE, &config)?;
 
-    // Reload keyd if it's running
     reload_keyd().await;
 
     info!("Keyboard remapping applied: {KEYD_CONFIG_FILE}");
     Ok(())
 }
 
-/// Generate the keyd config for this specific board.
-/// Most boards use the base config. Add overrides here as needed.
-fn board_config(board: &Board) -> String {
+/// Load a board-specific keyd config if one exists in the cobalt config dir,
+/// otherwise fall back to generated config.
+fn load_board_config(board: &Board) -> String {
+    // Try exact board name first (e.g. EVE.conf), then lowercase
+    let candidates = [
+        format!("{COBALT_KEYD_BOARDS_DIR}/{}.conf", board.name),
+        format!("{COBALT_KEYD_BOARDS_DIR}/{}.conf", board.name.to_lowercase()),
+    ];
+
+    for path in &candidates {
+        if let Ok(content) = std::fs::read_to_string(path) {
+            info!("Using board-specific keyd config: {path}");
+            return content;
+        }
+    }
+
+    // Fall back to generated config with per-board tweaks
+    generate_board_config(board)
+}
+
+/// Generate a keyd config for boards without a dedicated config file.
+fn generate_board_config(board: &Board) -> String {
     match board.name.as_str() {
-        // Boards with an extra dedicated assistant/launcher key
-        "HELIOS" | "VOXEL" | "VOLTA" => format!(
-            "{BASE_CONFIG}\n# Board {}: assistant key mapped to Super+S\nassistant = meta-s\n",
+        // Boards with a dedicated assistant/launcher key
+        "HELIOS" | "VOXEL" | "VOLTA" | "DROBIT" => format!(
+            "{BASE_CONFIG}\n# {}: assistant key → Super+S\nassistant = meta-s\n",
             board.name
         ),
-        // Boards with a different top-row layout (13 keys vs 10)
+        // Boards with extended top row (13 keys)
         "SAMUS" | "LINK" => format!(
-            "{BASE_CONFIG}\n# Board {}: extended top row\nf11 = f11\nf12 = f12\n",
+            "{BASE_CONFIG}\n# {}: extended top row\nf11 = f11\nf12 = f12\n",
             board.name
         ),
         _ => BASE_CONFIG.to_string(),

@@ -1,32 +1,63 @@
-# CobaltOS COSMIC theme defaults
-# Installed to /etc/cobaltos/cosmic/theme.toml at first boot
+# CobaltOS COSMIC Theme Configuration
+# Installed to /etc/cosmic/com.system76.CosmicTheme.Dark/v1 and Light variant
+# via the cobalt-hardware-probe first-boot service.
+#
+# COSMIC theming uses RON (Rusty Object Notation) internally, but this TOML
+# is parsed by cobalt-hardware-probe to generate the correct RON output.
 
-[colors]
-# Primary brand color — cobalt blue
-accent = "#0047AB"
+[palette]
+# CobaltOS brand — cobalt blue primary
+accent_blue   = "#0047AB"
+accent_hover  = "#0055cc"
+accent_press  = "#003d94"
 
-# Background palette
-background = "#111318"
-surface    = "#1a1e28"
-surface2   = "#222736"
+# Dark background layers
+bg_0  = "#111318"   # base background
+bg_1  = "#1a1e28"   # surface (cards, panels)
+bg_2  = "#222736"   # elevated surface
+bg_3  = "#2e3550"   # borders, dividers
 
-# Text palette
-text_primary   = "#e8eaf6"
-text_secondary = "#9aa0b5"
+# Text
+text_0 = "#e8eaf6"   # primary text
+text_1 = "#9aa0b5"   # secondary / muted
+text_2 = "#636b85"   # placeholder / disabled
+
+# Status
+success = "#4caf50"
+warning = "#ff9800"
+danger  = "#f44336"
 
 [theme]
-# "dark" or "light"
-mode = "dark"
+# Use dark mode by default; first-boot wizard allows switching to light
+is_dark = true
+is_high_contrast = false
 
-# Window decorations
-active_border   = "#0047AB"
-inactive_border = "#2e3550"
+active_hint   = "#0047AB"   # active window border / accent highlight
+window_hint_size = 2         # border width in pixels
 
 [fonts]
-interface = "Inter"
-monospace = "JetBrains Mono"
-interface_size = 10
-monospace_size = 11
+interface   = "Inter"
+monospace   = "JetBrains Mono"
+interface_size   = 10
+monospace_size   = 11
+interface_weight = 400
+monospace_weight = 400
+
+[light_palette]
+# Light mode variant — same accent, light backgrounds
+accent_blue   = "#0047AB"
+accent_hover  = "#0055cc"
+accent_press  = "#003d94"
+
+bg_0  = "#f5f7ff"
+bg_1  = "#eaecf5"
+bg_2  = "#dce0ef"
+bg_3  = "#c5cbdf"
+
+text_0 = "#0f1120"
+text_1 = "#3a3f57"
+text_2 = "#6b7191"
 
 [animations]
 enabled = true
+duration_multiplier = 1.0

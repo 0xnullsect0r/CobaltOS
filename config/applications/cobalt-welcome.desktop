@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=CobaltOS Welcome
+Comment=Get started with CobaltOS
+Exec=cobalt-welcome
+Icon=cobalt-welcome
+Terminal=false
+Categories=System;
+Keywords=welcome;cobalt;setup;
+StartupNotify=true
+X-GNOME-Autostart-enabled=true

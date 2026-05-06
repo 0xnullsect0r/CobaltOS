@@ -17,11 +17,17 @@ async fn main() -> Result<()> {
     info!("cobalt-hardware-probe v{}", env!("CARGO_PKG_VERSION"));
 
     let args: Vec<String> = std::env::args().collect();
+
     if args.contains(&"--fix-audio".to_string()) {
         return audio::fix_audio().await;
     }
 
-    // Normal first-boot probe
+    if args.contains(&"--dbus".to_string()) {
+        // Run as long-lived D-Bus service (for cobalt-welcome/installer to query)
+        return service::run_service().await;
+    }
+
+    // Normal first-boot probe (oneshot systemd service)
     let board = dmi::detect_board().await?;
     info!("Detected board: {}", board.name);
 

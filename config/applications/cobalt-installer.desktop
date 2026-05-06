@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install CobaltOS
+Comment=Install CobaltOS to your Chromebook
+Exec=cobalt-installer
+Icon=cobalt-installer
+Terminal=false
+Categories=System;
+Keywords=install;cobalt;linux;chromebook;
+StartupNotify=true

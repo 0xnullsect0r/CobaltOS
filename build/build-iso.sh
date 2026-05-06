@@ -108,6 +108,23 @@ enable cobalt-hardware-probe.service
 enable cobalt-update.service
 EOF
 
+# Install UCM2 audio profiles
+UCM_DST="config/includes.chroot/usr/share/cobaltos/ucm"
+mkdir -p "$UCM_DST"
+if [ -d "$REPO_ROOT/config/audio/ucm2" ]; then
+    cp -r "$REPO_ROOT/config/audio/ucm2/." "$UCM_DST/"
+fi
+
+# Install zram-generator config
+ZRAM_DST="config/includes.chroot/etc/systemd/zram-generator.conf.d"
+mkdir -p "$ZRAM_DST"
+cp "$REPO_ROOT/config/zram/zram-generator.conf" "$ZRAM_DST/cobaltos.conf" 2>/dev/null || true
+
+# Install desktop files
+APPS_DST="config/includes.chroot/usr/share/applications"
+mkdir -p "$APPS_DST"
+cp "$REPO_ROOT/config/applications/"*.desktop "$APPS_DST/" 2>/dev/null || true
+
 # --- Build ---
 info "Running lb build (this takes 15–30 minutes)..."
 lb build 2>&1 | tee "$OUTPUT_DIR/build.log"
