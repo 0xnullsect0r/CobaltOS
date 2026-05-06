@@ -73,6 +73,7 @@ systemctl enable pipewire         2>/dev/null || true
 systemctl enable pipewire-pulse   2>/dev/null || true
 systemctl enable wireplumber      2>/dev/null || true
 systemctl enable keyd             2>/dev/null || true
+systemctl enable gdm              2>/dev/null || true
 systemctl enable cobalt-hardware-probe 2>/dev/null || true
 systemctl enable cobalt-update    2>/dev/null || true
 systemctl enable cobalt-update.timer 2>/dev/null || true

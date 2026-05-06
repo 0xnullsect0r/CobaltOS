@@ -98,10 +98,6 @@ lb config \
 # trixie: COSMIC desktop (not yet in bookworm)
 mkdir -p config/archives
 
-cat > config/archives/backports.list.chroot <<'EOF'
-deb http://deb.debian.org/debian bookworm-backports main contrib non-free non-free-firmware
-EOF
-
 cat > config/archives/trixie.list.chroot <<'EOF'
 deb http://deb.debian.org/debian trixie main contrib non-free non-free-firmware
 EOF
@@ -113,12 +109,8 @@ Package: *
 Pin: release n=trixie
 Pin-Priority: 100
 
-Package: cosmic-session cosmic-comp cosmic-panel cosmic-launcher cosmic-settings cosmic-files cosmic-term cosmic-edit cosmic-greeter keyd
+Package: keyd eza
 Pin: release n=trixie
-Pin-Priority: 900
-
-Package: eza keyd
-Pin: release a=bookworm-backports
 Pin-Priority: 900
 EOF
 

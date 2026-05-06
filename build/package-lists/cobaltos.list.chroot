@@ -91,16 +91,15 @@ bat
 zoxide
 hexyl
 
-# COSMIC Desktop
-cosmic-session
-cosmic-comp
-cosmic-panel
-cosmic-launcher
-cosmic-settings
-cosmic-files
-cosmic-term
-cosmic-edit
-cosmic-greeter
+# GNOME Desktop (interim DE — COSMIC not yet packaged for Debian)
+gnome-session
+gnome-shell
+gnome-control-center
+gnome-tweaks
+nautilus
+gnome-terminal
+gnome-text-editor
+gdm3
 
 # Fonts
 fonts-inter
