@@ -563,6 +563,11 @@ impl InstallerApp {
             Space::with_height(24),
             info_row("Disk", disk_label),
             Space::with_height(8),
+            info_row("Filesystem", format!("{}", match self.filesystem {
+                Filesystem::Ext4  => "ext4",
+                Filesystem::Btrfs => "btrfs (subvolumes + zstd:3)",
+            })),
+            Space::with_height(8),
             info_row("Locale", self.locale.clone()),
             Space::with_height(8),
             info_row("Timezone", self.timezone.clone()),

@@ -2,6 +2,7 @@ mod dmi;
 mod keyboard;
 mod audio;
 mod display;
+mod gestures;
 mod power;
 mod service;
 mod touchpad;
@@ -27,6 +28,11 @@ async fn main() -> Result<()> {
         return touchpad::fix_touchpad().await;
     }
 
+    if args.contains(&"--fix-gestures".to_string()) {
+        let board = dmi::detect_board().await?;
+        return gestures::apply_gesture_config(&board).await;
+    }
+
     if args.contains(&"--dbus".to_string()) {
         // Run as long-lived D-Bus service (for cobalt-welcome/installer to query)
         return service::run_service().await;
@@ -41,6 +47,7 @@ async fn main() -> Result<()> {
     display::apply_scaling(&board).await?;
     power::apply_power_profile(&board).await?;
     touchpad::apply_touchpad_config(&board).await?;
+    gestures::apply_gesture_config(&board).await?;
 
     info!("Hardware probe complete for board: {}", board.name);
     Ok(())

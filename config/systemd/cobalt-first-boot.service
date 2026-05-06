@@ -1,0 +1,19 @@
+[Unit]
+Description=CobaltOS First-Boot Configuration
+Documentation=https://github.com/0xnullsect0r/CobaltOS
+After=graphical-session.target cobalt-oobe.service
+Wants=graphical-session.target
+# Only run if OOBE was completed (marker written by cobalt-oobe)
+ConditionPathExists=%h/.cobalt-oobe-done
+# Only run once per user (cleared after successful run)
+ConditionPathNotExists=%h/.config/cobaltos/.first-boot-done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/cobalt-first-boot
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cobalt-first-boot
+
+[Install]
+WantedBy=default.target

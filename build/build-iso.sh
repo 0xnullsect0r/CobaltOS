@@ -108,6 +108,8 @@ cat > "$PRESET_DST/80-cobaltos.preset" <<'EOF'
 enable cobalt-hardware-probe.service
 enable cobalt-update.service
 enable cobalt-update.timer
+enable cobalt-first-boot.service
+enable cobalt-flatpak-install.service
 EOF
 
 # Install UCM2 audio profiles

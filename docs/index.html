@@ -118,6 +118,7 @@
         <p>
           <code>cobalt-installer</code> guides you step-by-step with automatic
           hardware detection, UEFI firmware check, and auto-partitioning.
+          Choose <strong>ext4</strong> or <strong>btrfs</strong> (with subvolumes + zstd compression).
           GUI and TUI modes available.
         </p>
       </div>
@@ -128,6 +129,7 @@
         <p>
           No Google account. No telemetry. No cloud lock-in.
           Debian Stable base with Flatpak for sandboxed apps from Flathub.
+          Privacy preferences configured during setup — analytics and location access off by default.
         </p>
       </div>
 
@@ -137,15 +139,27 @@
         <p>
           Full <code>apt</code> package ecosystem plus Flatpak with Flathub enabled
           by default. Install anything from VS Code to Blender in seconds.
+          Welcome wizard installs your chosen browser and apps on first login.
         </p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon">🔄</div>
-        <h3>Easy updates</h3>
+        <h3>Smart auto-updates</h3>
         <p>
           <code>cobalt-update</code> handles <code>apt</code> and Flatpak updates
           with GUI tray notifications and safe rollback on failure.
+          A systemd timer checks every 6 hours — only notifying when new packages arrive.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <h3>Polished first-run experience</h3>
+        <p>
+          <code>cobalt-oobe</code> walks you through timezone, privacy, and account setup before
+          the desktop loads. <code>cobalt-welcome</code> then handles appearance, locale,
+          browser choice, and app recommendations.
         </p>
       </div>
 

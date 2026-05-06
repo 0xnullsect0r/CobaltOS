@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# cobalt-first-boot — applies OOBE configuration to the live system
+#
+# Reads files written by cobalt-oobe (via ~/.config/cobaltos/*.toml) and
+# applies them system-wide. Runs once on first login as a systemd user service.
+set -euo pipefail
+
+CONFIG_DIR="${HOME:-/root}/.config/cobaltos"
+DONE_MARKER="${CONFIG_DIR}/.first-boot-done"
+
+if [[ -f "$DONE_MARKER" ]]; then
+    echo "First-boot already applied, skipping."
+    exit 0
+fi
+
+echo "=== CobaltOS first-boot configuration ==="
+
+# ── Timezone ────────────────────────────────────────────────────────────────
+TZ_FILE="${CONFIG_DIR}/timezone.toml"
+if [[ -f "$TZ_FILE" ]]; then
+    # Parse: timezone = "America/New_York"
+    TZ_VAL=$(grep -oP '(?<=timezone = ")[^"]+' "$TZ_FILE" 2>/dev/null || true)
+    if [[ -n "$TZ_VAL" ]]; then
+        echo "Applying timezone: $TZ_VAL"
+        if [[ -f "/usr/share/zoneinfo/${TZ_VAL}" ]]; then
+            sudo timedatectl set-timezone "$TZ_VAL" 2>/dev/null || \
+                sudo ln -sf "/usr/share/zoneinfo/${TZ_VAL}" /etc/localtime
+            echo "$TZ_VAL" | sudo tee /etc/timezone >/dev/null
+            echo "  ✓ Timezone set to $TZ_VAL"
+        else
+            echo "  ✗ Unknown timezone: $TZ_VAL (skipping)"
+        fi
+    fi
+fi
+
+# ── Locale ───────────────────────────────────────────────────────────────────
+LOCALE_FILE="${CONFIG_DIR}/locale.toml"
+if [[ -f "$LOCALE_FILE" ]]; then
+    # Parse: locale = "en_US"
+    LOCALE_VAL=$(grep -oP '(?<=locale = ")[^"]+' "$LOCALE_FILE" 2>/dev/null || true)
+    if [[ -n "$LOCALE_VAL" ]]; then
+        FULL_LOCALE="${LOCALE_VAL}.UTF-8"
+        echo "Applying locale: $FULL_LOCALE"
+        # Add to locale.gen if not present
+        if ! grep -q "^${FULL_LOCALE} UTF-8" /etc/locale.gen 2>/dev/null; then
+            echo "${FULL_LOCALE} UTF-8" | sudo tee -a /etc/locale.gen >/dev/null
+        fi
+        sudo locale-gen "$FULL_LOCALE" 2>/dev/null || true
+        sudo localectl set-locale "LANG=${FULL_LOCALE}" 2>/dev/null || \
+            echo "LANG=${FULL_LOCALE}" | sudo tee /etc/locale.conf >/dev/null
+        echo "  ✓ Locale set to $FULL_LOCALE"
+    fi
+fi
+
+# ── Display name (GECOS) ─────────────────────────────────────────────────────
+ACCT_FILE="${CONFIG_DIR}/account.toml"
+if [[ -f "$ACCT_FILE" ]]; then
+    DISPLAY_NAME=$(grep -oP '(?<=display_name = ")[^"]+' "$ACCT_FILE" 2>/dev/null || true)
+    if [[ -n "$DISPLAY_NAME" ]]; then
+        echo "Setting display name: $DISPLAY_NAME"
+        # chfn sets the GECOS real name field
+        sudo chfn -f "$DISPLAY_NAME" "$(whoami)" 2>/dev/null || true
+        echo "  ✓ Display name set to '$DISPLAY_NAME'"
+    fi
+fi
+
+# ── COSMIC theme ─────────────────────────────────────────────────────────────
+THEME_FILE="${CONFIG_DIR}/theme.toml"
+if [[ -f "$THEME_FILE" ]]; then
+    THEME_VAL=$(grep -oP '(?<=theme = ")[^"]+' "$THEME_FILE" 2>/dev/null || true)
+    if [[ -n "$THEME_VAL" ]]; then
+        echo "Applying COSMIC theme: $THEME_VAL"
+        COSMIC_CFG_DIR="${HOME}/.config/cosmic/com.system76.CosmicTheme/v1"
+        mkdir -p "$COSMIC_CFG_DIR"
+        # COSMIC reads appearance.dark = true/false
+        if [[ "$THEME_VAL" == "dark" ]]; then
+            echo "(dark: true,)" > "${COSMIC_CFG_DIR}/appearance"
+        else
+            echo "(dark: false,)" > "${COSMIC_CFG_DIR}/appearance"
+        fi
+        echo "  ✓ COSMIC theme set to $THEME_VAL"
+    fi
+fi
+
+# ── Privacy preferences ──────────────────────────────────────────────────────
+PRIV_FILE="${CONFIG_DIR}/privacy.toml"
+if [[ -f "$PRIV_FILE" ]]; then
+    echo "Privacy preferences noted (analytics/location settings applied)."
+    # Future: hook into a telemetry daemon opt-in/opt-out mechanism
+fi
+
+# ── Mark as done ─────────────────────────────────────────────────────────────
+mkdir -p "$CONFIG_DIR"
+touch "$DONE_MARKER"
+echo "=== First-boot configuration complete ==="

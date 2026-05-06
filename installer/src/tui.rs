@@ -491,15 +491,20 @@ fn draw_confirm(f: &mut Frame, area: Rect, state: &TuiState) {
         .selected_disk()
         .map(|d| format!("{} ({:.1} GB)", d.path, d.size_gb))
         .unwrap_or_else(|| "—".into());
-    let area = centered_rect(60, 70, area);
+    let fs_label = match state.filesystem {
+        Filesystem::Ext4  => "ext4",
+        Filesystem::Btrfs => "btrfs (subvolumes + zstd:3)",
+    };
+    let area = centered_rect(60, 75, area);
     let lines = vec![
         Line::from(Span::styled("Ready to Install", Style::default().fg(COBALT).add_modifier(Modifier::BOLD))),
         Line::from(""),
-        Line::from(vec![Span::styled("Disk:     ", Style::default().fg(DIM)), Span::raw(&disk_label)]),
-        Line::from(vec![Span::styled("Locale:   ", Style::default().fg(DIM)), Span::raw(&state.locale)]),
-        Line::from(vec![Span::styled("Timezone: ", Style::default().fg(DIM)), Span::raw(&state.timezone)]),
-        Line::from(vec![Span::styled("Username: ", Style::default().fg(DIM)), Span::raw(&state.username)]),
-        Line::from(vec![Span::styled("Hostname: ", Style::default().fg(DIM)), Span::raw(&state.hostname)]),
+        Line::from(vec![Span::styled("Disk:       ", Style::default().fg(DIM)), Span::raw(&disk_label)]),
+        Line::from(vec![Span::styled("Filesystem: ", Style::default().fg(DIM)), Span::raw(fs_label)]),
+        Line::from(vec![Span::styled("Locale:     ", Style::default().fg(DIM)), Span::raw(&state.locale)]),
+        Line::from(vec![Span::styled("Timezone:   ", Style::default().fg(DIM)), Span::raw(&state.timezone)]),
+        Line::from(vec![Span::styled("Username:   ", Style::default().fg(DIM)), Span::raw(&state.username)]),
+        Line::from(vec![Span::styled("Hostname:   ", Style::default().fg(DIM)), Span::raw(&state.hostname)]),
         Line::from(""),
         Line::from(Span::styled("⚠ All data on the disk will be erased!", Style::default().fg(WARN))),
         Line::from(""),

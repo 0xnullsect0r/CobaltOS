@@ -8,7 +8,9 @@ PartOf=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/cobalt-welcome
+# After the wizard exits: mark done, then start the Flatpak install queue
 ExecStopPost=/bin/sh -c 'mkdir -p /var/lib/cobalt && touch /var/lib/cobalt/welcome-done'
+ExecStopPost=systemctl --user start cobalt-flatpak-install.service
 Restart=no
 StandardOutput=journal
 StandardError=journal
