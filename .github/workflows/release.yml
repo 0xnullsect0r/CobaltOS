@@ -1,0 +1,142 @@
+name: Release ISO
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write   # needed to create releases and upload assets
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-iso:
+    name: Build ISO and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ── Extract version from tag (strips leading 'v') ──────────────────────
+      - name: Set version
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"              # e.g. v1.4.0
+          VER="${TAG#v}"                         # e.g. 1.4.0
+          echo "tag=${TAG}"  >> "$GITHUB_OUTPUT"
+          echo "ver=${VER}"  >> "$GITHUB_OUTPUT"
+          echo "${VER}" > VERSION
+          echo "Building CobaltOS ${VER} from tag ${TAG}"
+
+      # ── Rust toolchain + cache ──────────────────────────────────────────────
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-release-
+
+      # ── System dependencies ─────────────────────────────────────────────────
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            live-build \
+            debootstrap \
+            xorriso \
+            mtools \
+            squashfs-tools \
+            isolinux \
+            syslinux-common \
+            grub-efi-amd64-bin \
+            grub-pc-bin \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libvulkan-dev \
+            libgl1-mesa-dev \
+            libdbus-1-dev \
+            pkg-config
+
+      # ── Build Rust binaries ─────────────────────────────────────────────────
+      - name: Build Rust workspace (release)
+        run: cargo build --release --workspace
+
+      # ── Build ISO ───────────────────────────────────────────────────────────
+      - name: Build ISO
+        run: sudo --preserve-env=PATH bash build/build-iso.sh
+        env:
+          # Pass Cargo target dir so the build script can find binaries built above
+          CARGO_TARGET_DIR: ${{ github.workspace }}/target
+
+      # ── Collect artifacts ───────────────────────────────────────────────────
+      - name: Locate artifacts
+        id: artifacts
+        run: |
+          VER="${{ steps.version.outputs.ver }}"
+          ISO="build/output/cobaltos-${VER}-amd64.iso"
+          SHA="build/output/cobaltos-${VER}-amd64.iso.sha256"
+          LOG="build/output/build.log"
+          echo "iso=${ISO}"    >> "$GITHUB_OUTPUT"
+          echo "sha=${SHA}"    >> "$GITHUB_OUTPUT"
+          echo "log=${LOG}"    >> "$GITHUB_OUTPUT"
+          ls -lh "${ISO}" "${SHA}"
+
+      # ── Generate release notes ──────────────────────────────────────────────
+      - name: Extract release notes
+        id: notes
+        run: |
+          VER="${{ steps.version.outputs.ver }}"
+          {
+            echo "notes<<RELEASE_NOTES_EOF"
+            python3 -c "
+import re
+tag  = '${VER}'
+text = open('README.md').read()
+row  = re.search(r'\|\s*\*?\*?v' + re.escape(tag) + r'\*?\*?\s*\|([^\n]+)', text)
+desc = row.group(1).strip() if row else 'See README.md for details.'
+print(f'## CobaltOS v{tag}')
+print()
+print(desc)
+print()
+print('### Assets')
+print('| File | Description |')
+print('|------|-------------|')
+print(f'| \`cobaltos-{tag}-amd64.iso\` | Bootable hybrid ISO (amd64) |')
+print(f'| \`cobaltos-{tag}-amd64.iso.sha256\` | SHA-256 checksum |')
+print()
+print('### Verify checksum')
+print('\`\`\`bash')
+print(f'sha256sum -c cobaltos-{tag}-amd64.iso.sha256')
+print('\`\`\`')
+print()
+print('### Flash to USB')
+print('\`\`\`bash')
+print(f'sudo dd if=cobaltos-{tag}-amd64.iso of=/dev/sdX bs=4M status=progress conv=fdatasync')
+print('\`\`\`')
+"
+            echo "RELEASE_NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # ── Create GitHub Release ───────────────────────────────────────────────
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "CobaltOS ${{ steps.version.outputs.tag }}"
+          body: ${{ steps.notes.outputs.notes }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.tag, '-') }}
+          files: |
+            ${{ steps.artifacts.outputs.iso }}
+            ${{ steps.artifacts.outputs.sha }}
+            ${{ steps.artifacts.outputs.log }}

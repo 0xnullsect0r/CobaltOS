@@ -46,13 +46,21 @@ info "Output: ${OUTPUT_DIR}/${ISO_NAME}"
 BINARIES_DIR="$BUILD_DIR/config/includes.chroot/usr/local/bin"
 mkdir -p "$BINARIES_DIR"
 
-info "Building cobalt-* Rust binaries (release)..."
-pushd "$REPO_ROOT" > /dev/null
-cargo build --release --workspace 2>&1 | tee -a "$OUTPUT_DIR/build.log"
-popd > /dev/null
+# Allow CI to pre-build binaries and pass CARGO_TARGET_DIR so we skip a
+# redundant rebuild (saves ~10 min on GitHub Actions).
+CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$REPO_ROOT/target}"
+
+if [[ -f "${CARGO_TARGET_DIR}/release/cobalt-installer" ]]; then
+    info "Using pre-built Rust binaries from ${CARGO_TARGET_DIR}/release/"
+else
+    info "Building cobalt-* Rust binaries (release)..."
+    pushd "$REPO_ROOT" > /dev/null
+    CARGO_TARGET_DIR="$CARGO_TARGET_DIR" cargo build --release --workspace 2>&1 | tee -a "$OUTPUT_DIR/build.log"
+    popd > /dev/null
+fi
 
 for bin in cobalt-installer cobalt-welcome cobalt-oobe cobalt-update cobalt-hardware-probe; do
-    src="$REPO_ROOT/target/release/$bin"
+    src="${CARGO_TARGET_DIR}/release/$bin"
     if [[ -f "$src" ]]; then
         cp "$src" "$BINARIES_DIR/$bin"
         success "Copied $bin"
