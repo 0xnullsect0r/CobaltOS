@@ -11,7 +11,7 @@ use iced::{
 };
 
 use crate::hardware::HardwareInfo;
-use crate::installer::{run_install, Filesystem, InstallConfig, InstallStep};
+use crate::installer::{run_install, Filesystem, InstallConfig, InstallStep, PartitionMode};
 
 pub fn run() -> anyhow::Result<()> {
     InstallerApp::run(Settings {
@@ -37,6 +37,9 @@ struct InstallerApp {
     // DiskSetup
     disk_idx: Option<usize>,
     filesystem: Filesystem,
+    partition_mode: PartitionMode,
+    efi_size_mb: String,
+    root_size_gb: String,
 
     // Location
     locale: String,
@@ -61,6 +64,9 @@ enum Message {
     HardwareProbed(Result<HardwareInfo, String>),
     DiskSelected(usize),
     FilesystemChanged(Filesystem),
+    PartitionModeChanged(PartitionMode),
+    EfiSizeChanged(String),
+    RootSizeChanged(String),
     LocaleChanged(String),
     TimezoneChanged(String),
     UsernameChanged(String),
@@ -147,6 +153,9 @@ impl Application for InstallerApp {
                             use_full_disk: true,
                             password: self.password.clone(),
                             filesystem: self.filesystem.clone(),
+                            partition_mode: self.partition_mode,
+                            efi_size_mb: self.efi_size_mb.parse().unwrap_or(512),
+                            root_size_gb: self.root_size_gb.parse().unwrap_or(0),
                         };
 
                         self.step = InstallStep::Installing;
@@ -181,6 +190,9 @@ impl Application for InstallerApp {
                 Command::none()
             }
             Message::FilesystemChanged(fs) => { self.filesystem = fs; Command::none() }
+            Message::PartitionModeChanged(m) => { self.partition_mode = m; Command::none() }
+            Message::EfiSizeChanged(v) => { self.efi_size_mb = v; Command::none() }
+            Message::RootSizeChanged(v) => { self.root_size_gb = v; Command::none() }
             Message::LocaleChanged(v) => { self.locale = v; Command::none() }
             Message::TimezoneChanged(v) => { self.timezone = v; Command::none() }
             Message::UsernameChanged(v) => { self.username = v; Command::none() }
@@ -468,6 +480,60 @@ impl InstallerApp {
             Column::with_children(disk_list).spacing(12)
         };
 
+        // Guided vs Manual partition mode section
+        let partition_section: Element<Message> = {
+            let mut col = column![
+                text("Partitioning Mode").size(16),
+                Space::with_height(8),
+                radio(
+                    "Guided  (use entire disk — recommended)",
+                    PartitionMode::Guided,
+                    Some(self.partition_mode),
+                    Message::PartitionModeChanged,
+                )
+                .size(16),
+                Space::with_height(8),
+                radio(
+                    "Manual  (specify partition sizes)",
+                    PartitionMode::Manual,
+                    Some(self.partition_mode),
+                    Message::PartitionModeChanged,
+                )
+                .size(16),
+            ]
+            .spacing(0);
+
+            if self.partition_mode == PartitionMode::Manual {
+                let efi_row = row![
+                    text("EFI partition size (MiB):").size(14).width(Length::Fixed(220.0)),
+                    text_input("512", &self.efi_size_mb)
+                        .on_input(Message::EfiSizeChanged)
+                        .width(Length::Fixed(120.0)),
+                    text("  (minimum 256 MiB)").size(12),
+                ]
+                .spacing(8)
+                .align_items(Alignment::Center);
+
+                let root_row = row![
+                    text("Root partition size (GiB):").size(14).width(Length::Fixed(220.0)),
+                    text_input("0 = remaining space", &self.root_size_gb)
+                        .on_input(Message::RootSizeChanged)
+                        .width(Length::Fixed(120.0)),
+                    text("  (0 = use all remaining space)").size(12),
+                ]
+                .spacing(8)
+                .align_items(Alignment::Center);
+
+                col = col
+                    .push(Space::with_height(12))
+                    .push(efi_row)
+                    .push(Space::with_height(8))
+                    .push(root_row);
+            }
+
+            col.into()
+        };
+
         column![
             text("Choose Installation Disk").size(28),
             Space::with_height(8),
@@ -484,6 +550,8 @@ impl InstallerApp {
             Space::with_height(8),
             radio("btrfs  (snapshots + zstd compression)", Filesystem::Btrfs, Some(self.filesystem.clone()), Message::FilesystemChanged)
                 .size(16),
+            Space::with_height(16),
+            partition_section,
             Space::with_height(16),
             self.error_text(),
             Space::with_height(32),
@@ -558,10 +626,25 @@ impl InstallerApp {
             .map(|d| format!("{} ({:.1} GB)", d.path, d.size_gb))
             .unwrap_or_else(|| "—".into());
 
+        let partition_label = match self.partition_mode {
+            PartitionMode::Guided => "Guided (entire disk)".to_string(),
+            PartitionMode::Manual => {
+                let efi = if self.efi_size_mb.is_empty() { "512".into() } else { self.efi_size_mb.clone() };
+                let root = if self.root_size_gb.is_empty() || self.root_size_gb == "0" {
+                    "remaining".into()
+                } else {
+                    format!("{} GiB", self.root_size_gb)
+                };
+                format!("Manual  (EFI: {efi} MiB, Root: {root})")
+            }
+        };
+
         column![
             text("Ready to Install").size(28),
             Space::with_height(24),
             info_row("Disk", disk_label),
+            Space::with_height(8),
+            info_row("Partitioning", partition_label),
             Space::with_height(8),
             info_row("Filesystem", format!("{}", match self.filesystem {
                 Filesystem::Ext4  => "ext4",

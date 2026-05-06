@@ -4,7 +4,7 @@ use anyhow::Result;
 use std::collections::HashSet;
 use tracing::info;
 
-use crate::{apt, flatpak, notify};
+use crate::{apt, flatpak, notify, rollback};
 
 const STATE_DIR: &str = "/var/lib/cobalt-update";
 const STATE_FILE: &str = "/var/lib/cobalt-update/last-notified.json";
@@ -49,18 +49,45 @@ pub async fn check_updates() -> Result<()> {
     Ok(())
 }
 
-/// Apply all pending updates, then clear the last-notified state.
+/// Apply all pending updates with a pre-upgrade snapshot for safe rollback.
+/// On failure, rolls back via dpkg state; on btrfs systems a subvolume snapshot
+/// is also available.
 pub async fn apply_updates() -> Result<()> {
+    info!("Creating pre-upgrade snapshot");
+    rollback::create_snapshot().await.unwrap_or_else(|e| {
+        tracing::warn!("Pre-upgrade snapshot failed (continuing anyway): {e}");
+    });
+
     info!("Applying all updates");
+    let result = async {
+        apt::apply_upgrades().await?;
+        flatpak::apply_upgrades().await?;
+        Ok::<(), anyhow::Error>(())
+    }
+    .await;
 
-    apt::apply_upgrades().await?;
-    flatpak::apply_upgrades().await?;
+    match result {
+        Ok(()) => {
+            // Clear state — next check will show fresh update set
+            let _ = save_notified_set(&HashSet::new());
+            notify::send("Update complete", "Your system is up to date.").await?;
+            info!("All updates applied successfully");
+        }
+        Err(e) => {
+            tracing::error!("Update failed: {e}. Attempting rollback…");
+            notify::send(
+                "Update failed",
+                "An error occurred during updates. CobaltOS is restoring the previous state.",
+            )
+            .await
+            .ok();
+            rollback::rollback().await.unwrap_or_else(|re| {
+                tracing::error!("Rollback also failed: {re}");
+            });
+            return Err(e);
+        }
+    }
 
-    // Clear state — next check will show fresh update set
-    let _ = save_notified_set(&HashSet::new());
-
-    notify::send("Update complete", "Your system is up to date.").await?;
-    info!("All updates applied successfully");
     Ok(())
 }
 

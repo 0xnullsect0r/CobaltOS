@@ -6,21 +6,69 @@ use anyhow::{bail, Context, Result};
 use std::process::Command;
 use tracing::info;
 
-use crate::installer::Filesystem;
+use crate::installer::{Filesystem, InstallConfig, PartitionMode};
 
 /// Wipe, partition, and format `disk` for a CobaltOS installation.
 /// Requires root. `disk` is a block device path like `/dev/sda` or `/dev/mmcblk0`.
-/// The root partition is formatted as `filesystem` (ext4 or btrfs with zstd).
+///
+/// In `Guided` mode the entire disk is used (512 MiB ESP + all remaining space as root).
+/// In `Manual` mode, `config.efi_size_mb` and `config.root_size_gb` are respected;
+/// when `root_size_gb` is 0 the remaining disk space is used.
 pub async fn partition_disk(disk: &str, filesystem: &Filesystem) -> Result<()> {
-    info!("Partitioning disk: {disk} (filesystem: {filesystem:?})");
+    let config_defaults = InstallConfig {
+        disk: disk.to_string(),
+        filesystem: *filesystem,
+        ..Default::default()
+    };
+    partition_disk_with_config(disk, &config_defaults).await
+}
+
+/// Full partition_disk that respects partition_mode and custom sizes.
+pub async fn partition_disk_with_config(disk: &str, config: &InstallConfig) -> Result<()> {
+    let filesystem = &config.filesystem;
+    info!("Partitioning disk: {disk} (mode: {:?}, filesystem: {filesystem:?})", config.partition_mode);
 
     if !std::path::Path::new(disk).exists() {
         bail!("Disk {disk} not found");
     }
 
+    let efi_mb = if config.partition_mode == PartitionMode::Manual && config.efi_size_mb > 0 {
+        config.efi_size_mb
+    } else {
+        512
+    };
+
+    let root_arg = if config.partition_mode == PartitionMode::Manual && config.root_size_gb > 0 {
+        format!("0:+{}G", config.root_size_gb)
+    } else {
+        "0:0".to_string()
+    };
+
     run_cmd("sgdisk", &["-Z", disk])?;
-    run_cmd("sgdisk", &["-n", "1:0:+512M", "-t", "1:ef00", "-c", "1:EFI", disk])?;
-    run_cmd("sgdisk", &["-n", "2:0:0", "-t", "2:8300", "-c", "2:root", disk])?;
+    run_cmd(
+        "sgdisk",
+        &[
+            "-n",
+            &format!("1:0:+{efi_mb}M"),
+            "-t",
+            "1:ef00",
+            "-c",
+            "1:EFI",
+            disk,
+        ],
+    )?;
+    run_cmd(
+        "sgdisk",
+        &[
+            "-n",
+            &format!("2:{root_arg}"),
+            "-t",
+            "2:8300",
+            "-c",
+            "2:root",
+            disk,
+        ],
+    )?;
     run_cmd("partprobe", &[disk])?;
     tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
 
@@ -46,7 +94,7 @@ pub async fn partition_disk(disk: &str, filesystem: &Filesystem) -> Result<()> {
         }
     }
 
-    info!("Partitioning complete: ESP={esp}, root={root}");
+    info!("Partitioning complete: ESP={esp} ({efi_mb} MiB), root={root}");
     Ok(())
 }
 
@@ -105,4 +153,61 @@ fn run_cmd(program: &str, args: &[&str]) -> Result<()> {
         bail!("{program} exited with status {status}");
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::installer::{Filesystem, InstallConfig, PartitionMode};
+
+    #[test]
+    fn guided_mode_uses_default_512mib_efi() {
+        let config = InstallConfig {
+            disk: "/dev/sda".into(),
+            partition_mode: PartitionMode::Guided,
+            efi_size_mb: 0,
+            root_size_gb: 0,
+            ..Default::default()
+        };
+        let efi_mb = if config.partition_mode == PartitionMode::Manual && config.efi_size_mb > 0 {
+            config.efi_size_mb
+        } else {
+            512
+        };
+        assert_eq!(efi_mb, 512);
+    }
+
+    #[test]
+    fn manual_mode_respects_custom_efi_size() {
+        let config = InstallConfig {
+            disk: "/dev/sda".into(),
+            partition_mode: PartitionMode::Manual,
+            efi_size_mb: 256,
+            root_size_gb: 20,
+            ..Default::default()
+        };
+        let efi_mb = if config.partition_mode == PartitionMode::Manual && config.efi_size_mb > 0 {
+            config.efi_size_mb
+        } else {
+            512
+        };
+        assert_eq!(efi_mb, 256);
+    }
+
+    #[test]
+    fn manual_mode_zero_root_uses_remaining_space() {
+        let config = InstallConfig {
+            disk: "/dev/sda".into(),
+            partition_mode: PartitionMode::Manual,
+            efi_size_mb: 512,
+            root_size_gb: 0,
+            ..Default::default()
+        };
+        let root_arg = if config.partition_mode == PartitionMode::Manual && config.root_size_gb > 0 {
+            format!("0:+{}G", config.root_size_gb)
+        } else {
+            "0:0".to_string()
+        };
+        assert_eq!(root_arg, "0:0");
+    }
 }

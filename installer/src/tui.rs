@@ -17,7 +17,7 @@ use ratatui::{
 use std::io::{self, Stdout};
 
 use crate::hardware::{DiskInfo, HardwareInfo};
-use crate::installer::{run_install, Filesystem, InstallConfig, InstallStep};
+use crate::installer::{run_install, Filesystem, InstallConfig, InstallStep, PartitionMode};
 
 // ── Palette ───────────────────────────────────────────────────────────────────
 
@@ -33,6 +33,9 @@ struct TuiState {
     hardware: Option<HardwareInfo>,
     disk_list: ListState,
     filesystem: Filesystem,
+    partition_mode: PartitionMode,
+    efi_size_mb: String,
+    root_size_gb: String,
     locale: String,
     timezone: String,
     username: String,
@@ -54,6 +57,9 @@ impl TuiState {
             hardware,
             disk_list,
             filesystem: Filesystem::Ext4,
+            partition_mode: PartitionMode::Guided,
+            efi_size_mb: "512".into(),
+            root_size_gb: "0".into(),
             locale: "en_US".into(),
             timezone: "America/New_York".into(),
             username: String::new(),
@@ -175,11 +181,36 @@ async fn handle_key(state: &mut TuiState, key: KeyCode) {
                         Filesystem::Btrfs => Filesystem::Ext4,
                     };
                 }
+                // Toggle partition mode with 'm'
+                KeyCode::Char('m') => {
+                    state.partition_mode = match state.partition_mode {
+                        PartitionMode::Guided => PartitionMode::Manual,
+                        PartitionMode::Manual => PartitionMode::Guided,
+                    };
+                }
+                // Edit EFI size (manual mode) with 'e'
+                KeyCode::Char('e') if state.partition_mode == PartitionMode::Manual => {
+                    state.active_field = 10; // special field id for EFI size input
+                }
+                // Edit root size (manual mode) with 'r'
+                KeyCode::Char('r') if state.partition_mode == PartitionMode::Manual => {
+                    state.active_field = 11;
+                }
+                KeyCode::Char(c) if state.active_field == 10 => {
+                    if c.is_ascii_digit() { state.efi_size_mb.push(c); }
+                }
+                KeyCode::Backspace if state.active_field == 10 => { state.efi_size_mb.pop(); }
+                KeyCode::Char(c) if state.active_field == 11 => {
+                    if c.is_ascii_digit() { state.root_size_gb.push(c); }
+                }
+                KeyCode::Backspace if state.active_field == 11 => { state.root_size_gb.pop(); }
+                KeyCode::Esc => { state.active_field = 0; }
                 KeyCode::Enter | KeyCode::Right | KeyCode::Char('n') => {
                     if let Some(err) = state.validate() {
                         state.error = Some(err.into());
                     } else {
                         state.step = InstallStep::Location;
+                        state.active_field = 0;
                     }
                 }
                 KeyCode::Left | KeyCode::Char('b') => {
@@ -256,6 +287,9 @@ async fn handle_key(state: &mut TuiState, key: KeyCode) {
                     use_full_disk: true,
                     password: state.password.clone(),
                     filesystem: state.filesystem.clone(),
+                    partition_mode: state.partition_mode,
+                    efi_size_mb: state.efi_size_mb.parse().unwrap_or(512),
+                    root_size_gb: state.root_size_gb.parse().unwrap_or(0),
                 };
                 state.step = InstallStep::Installing;
                 state.progress = 0;
@@ -310,7 +344,7 @@ fn draw_header(f: &mut Frame, area: Rect, step: &InstallStep) {
 
 fn draw_footer(f: &mut Frame, area: Rect, step: &InstallStep) {
     let hint = match step {
-        InstallStep::DiskSetup => " ↑/↓ select disk  f: toggle filesystem  Enter: next  b: back  q: quit ",
+        InstallStep::DiskSetup => " ↑/↓ select disk  f: filesystem  m: partition mode  e/r: EFI/root size  Enter: next  b: back ",
         InstallStep::Location | InstallStep::Account => " Tab: next field  Enter (last field): next  b: back ",
         InstallStep::Installing => " Please wait… ",
         InstallStep::Done => " Press any key to exit ",
@@ -409,7 +443,7 @@ fn draw_disk_setup(f: &mut Frame, area: Rect, state: &mut TuiState) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .margin(2)
-        .constraints([Constraint::Min(6), Constraint::Length(5)])
+        .constraints([Constraint::Min(6), Constraint::Length(8)])
         .split(centered_rect(70, 75, area));
 
     let disks: Vec<ListItem> = state
@@ -438,11 +472,32 @@ fn draw_disk_setup(f: &mut Frame, area: Rect, state: &mut TuiState) {
         Filesystem::Ext4  => "  [●] ext4 (recommended)    [ ] btrfs+zstd",
         Filesystem::Btrfs => "  [ ] ext4 (recommended)    [●] btrfs+zstd",
     };
-    let fs_lines = vec![
-        Line::from(Span::styled("Filesystem  (press f to toggle)", Style::default().fg(DIM))),
+    let mode_label = match state.partition_mode {
+        PartitionMode::Guided => "  [●] Guided (entire disk)    [ ] Manual",
+        PartitionMode::Manual => "  [ ] Guided (entire disk)    [●] Manual",
+    };
+
+    let mut options_lines = vec![
+        Line::from(Span::styled("Filesystem  (f: toggle)", Style::default().fg(DIM))),
         Line::from(Span::styled(fs_label, Style::default().fg(COBALT))),
+        Line::from(""),
+        Line::from(Span::styled("Partitioning  (m: toggle)", Style::default().fg(DIM))),
+        Line::from(Span::styled(mode_label, Style::default().fg(COBALT))),
     ];
-    let fs_widget = Paragraph::new(fs_lines)
+
+    if state.partition_mode == PartitionMode::Manual {
+        let efi_style = if state.active_field == 10 { Style::default().fg(Color::Yellow) } else { Style::default().fg(COBALT) };
+        let root_style = if state.active_field == 11 { Style::default().fg(Color::Yellow) } else { Style::default().fg(COBALT) };
+        options_lines.push(Line::from(""));
+        options_lines.push(Line::from(vec![
+            Span::styled("  EFI MiB (e): ", Style::default().fg(DIM)),
+            Span::styled(state.efi_size_mb.clone(), efi_style),
+            Span::styled("    Root GiB (r, 0=all): ", Style::default().fg(DIM)),
+            Span::styled(state.root_size_gb.clone(), root_style),
+        ]));
+    }
+
+    let fs_widget = Paragraph::new(options_lines)
         .block(Block::default().borders(Borders::ALL));
     f.render_widget(fs_widget, chunks[1]);
 }
@@ -492,19 +547,28 @@ fn draw_confirm(f: &mut Frame, area: Rect, state: &TuiState) {
         .map(|d| format!("{} ({:.1} GB)", d.path, d.size_gb))
         .unwrap_or_else(|| "—".into());
     let fs_label = match state.filesystem {
-        Filesystem::Ext4  => "ext4",
-        Filesystem::Btrfs => "btrfs (subvolumes + zstd:3)",
+        Filesystem::Ext4  => "ext4".to_string(),
+        Filesystem::Btrfs => "btrfs (subvolumes + zstd:3)".to_string(),
+    };
+    let mode_label = match state.partition_mode {
+        PartitionMode::Guided => "Guided (entire disk)".to_string(),
+        PartitionMode::Manual => {
+            let efi = if state.efi_size_mb.is_empty() { "512" } else { &state.efi_size_mb };
+            let root = if state.root_size_gb.is_empty() || state.root_size_gb == "0" { "remaining".to_string() } else { format!("{} GiB", state.root_size_gb) };
+            format!("Manual  EFI:{efi}MiB  Root:{root}")
+        }
     };
     let area = centered_rect(60, 75, area);
     let lines = vec![
         Line::from(Span::styled("Ready to Install", Style::default().fg(COBALT).add_modifier(Modifier::BOLD))),
         Line::from(""),
-        Line::from(vec![Span::styled("Disk:       ", Style::default().fg(DIM)), Span::raw(&disk_label)]),
-        Line::from(vec![Span::styled("Filesystem: ", Style::default().fg(DIM)), Span::raw(fs_label)]),
-        Line::from(vec![Span::styled("Locale:     ", Style::default().fg(DIM)), Span::raw(&state.locale)]),
-        Line::from(vec![Span::styled("Timezone:   ", Style::default().fg(DIM)), Span::raw(&state.timezone)]),
-        Line::from(vec![Span::styled("Username:   ", Style::default().fg(DIM)), Span::raw(&state.username)]),
-        Line::from(vec![Span::styled("Hostname:   ", Style::default().fg(DIM)), Span::raw(&state.hostname)]),
+        Line::from(vec![Span::styled("Disk:          ", Style::default().fg(DIM)), Span::raw(&disk_label)]),
+        Line::from(vec![Span::styled("Partitioning:  ", Style::default().fg(DIM)), Span::raw(&mode_label)]),
+        Line::from(vec![Span::styled("Filesystem:    ", Style::default().fg(DIM)), Span::raw(&fs_label)]),
+        Line::from(vec![Span::styled("Locale:        ", Style::default().fg(DIM)), Span::raw(&state.locale)]),
+        Line::from(vec![Span::styled("Timezone:      ", Style::default().fg(DIM)), Span::raw(&state.timezone)]),
+        Line::from(vec![Span::styled("Username:      ", Style::default().fg(DIM)), Span::raw(&state.username)]),
+        Line::from(vec![Span::styled("Hostname:      ", Style::default().fg(DIM)), Span::raw(&state.hostname)]),
         Line::from(""),
         Line::from(Span::styled("⚠ All data on the disk will be erased!", Style::default().fg(WARN))),
         Line::from(""),

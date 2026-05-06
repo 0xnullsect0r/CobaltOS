@@ -129,6 +129,16 @@ impl InstallStep {
     }
 }
 
+/// Partitioning strategy for the installation.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PartitionMode {
+    /// Erase the entire disk and use it for CobaltOS (recommended).
+    #[default]
+    Guided,
+    /// Use custom EFI and root partition sizes specified by the user.
+    Manual,
+}
+
 /// User-provided configuration collected during the install wizard.
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct InstallConfig {
@@ -141,6 +151,11 @@ pub struct InstallConfig {
     pub hostname: String,
     pub use_full_disk: bool,
     pub filesystem: Filesystem,
+    pub partition_mode: PartitionMode,
+    /// EFI partition size in MiB (only used in Manual mode; default 512).
+    pub efi_size_mb: u32,
+    /// Root partition size in GiB (only used in Manual mode; 0 = use remaining space).
+    pub root_size_gb: u32,
 }
 
 /// Root filesystem choice for the installation.
@@ -166,7 +181,7 @@ pub async fn run_install(
 
     // 1 — Partition
     step!(5, "Partitioning disk", {
-        crate::partition::partition_disk(&config.disk, &config.filesystem).await
+        crate::partition::partition_disk_with_config(&config.disk, config).await
     });
 
     // 2 — Mount
